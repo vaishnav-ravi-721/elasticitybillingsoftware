@@ -1390,10 +1390,9 @@
                                     </div>
                                 </td>
                                 <td class="label">
-                                    Bill no:
+                                    <span id="lbl-simple-bill-no">Bill no</span>:
                                     <span id="billPrefixDisplay"
-                                        style="color: #0f0f0f; margin-right: 2px;font-size: 0.9rem;"></span>
-
+                                        style="color: #0f0f0f; margin-right: 2px; font-size: 0.9rem;"></span>
                                     <input type="text" id="billNo"
                                         oninput="saveToLocalStorage(); syncRegularData('view')"
                                         style="display: inline-block;">
@@ -1428,8 +1427,8 @@
 
                     <div style="display: flex; justify-content: space-between;">
                         <div style="font-size: 16px;">
-                            Invoice No : <strong id="adv-invoice-no"></strong>
-                            <!-- style="color: var(--primary-color);" -->
+                            <span id="lbl-adv-invoice-no">Invoice No</span> :
+                            <strong id="adv-invoice-no"></strong>
                         </div>
                         <div style="font-size: 16px;">
                             Dated : <strong id="adv-bill-date"></strong>
@@ -3170,27 +3169,44 @@
 
                 <div class="form-group-row"
                     style="display: flex; gap: 15px; margin-bottom: 20px; align-items: flex-end;">
-                    <div style="flex: 1;">
+                    <div style="flex: 1; position: relative;">
                         <label>Bill Type</label>
-                        <select id="reg-modal-type-select" onchange="handleRegTypeChange()"
-                            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                            <option value="Estimate">Estimate</option>
-                            <option value="Quotation">Quotation</option>
-                            <option value="Purchase Order">Purchase Order</option>
-                            <option value="Work Order">Work Order</option>
-                            <option value="Custom">Custom...</option>
-                        </select>
+                        <div style="display: flex; gap: 5px;">
+                            <select id="reg-modal-type-select" onchange="handleRegTypeChange()"
+                                style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                <option value="Estimate">Estimate</option>
+                                <option value="Quotation">Quotation</option>
+                                <option value="Purchase Order">Purchase Order</option>
+                                <option value="Work Order">Work Order</option>
+                                <option value="Custom">Custom...</option>
+                            </select>
+
+                            <button onclick="toggleRegTypeMenu()" class="btn-icon"
+                                style="padding: 5px; border: none; background: transparent; cursor: pointer;">
+                                <span class="material-icons">more_vert</span>
+                            </button>
+                        </div>
+
+                        <div id="reg-type-menu"
+                            style="display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; border-radius: 4px; min-width: 120px;">
+                            <div onclick="editRegType()"
+                                style="padding: 8px 15px; cursor: pointer; border-bottom: 1px solid #eee;">Edit</div>
+                            <div onclick="deleteRegType()" style="padding: 8px 15px; cursor: pointer; color: red;">
+                                Delete</div>
+                        </div>
                     </div>
+
                     <div style="flex: 1;">
                         <label>Prefix</label>
                         <div class="input-group-lock">
-                            <input type="text" id="reg-modal-prefix" placeholder="EST" disabled>
+                            <input type="text" id="reg-modal-prefix" placeholder="EST" disabled="">
                             <button id="reg-prefix-lock-btn" onclick="toggleRegPrefixLock()" type="button"
                                 title="Toggle Edit">
                                 <span class="material-icons">lock</span>
                             </button>
                         </div>
                     </div>
+
                     <div style="flex: 0 0 100px;">
                         <button id="reg-save-custom-btn" onclick="saveRegCustomType()" class="btn-primary"
                             style="width: 100%; display: none; height: 38px;">Save Type</button>
@@ -3200,14 +3216,18 @@
                 <div id="reg-custom-type-panel"
                     style="display: none; background: #f0f4f8; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
                     <div style="display: flex; gap: 10px;">
-                        <input type="text" id="reg-custom-name-input" placeholder="New Type Name (e.g. Proforma)">
-                        <input type="text" id="reg-custom-prefix-input" placeholder="Default Prefix (e.g. PI)">
+                        <input type="text" id="reg-custom-name-input" placeholder="Type Name (e.g. Proforma)"
+                            style="flex: 1;">
+                        <input type="text" id="reg-custom-prefix-input" placeholder="Prefix (e.g. PI)"
+                            style="flex:1;">
+                        <input type="text" id="reg-custom-label-input" placeholder="Label (e.g. Proforma No)"
+                            style="flex: 1;">
                     </div>
                 </div>
 
                 <div class="form-group-row" style="display: flex; gap: 15px; margin-bottom: 20px;">
                     <div style="flex: 1;">
-                        <label>Invoice No</label>
+                        <label id="lbl-reg-invoice-no">Invoice No</label>
                         <input type="text" id="reg-modal-invoice-no" oninput="syncRegularData('modal')"
                             placeholder="001">
                     </div>
