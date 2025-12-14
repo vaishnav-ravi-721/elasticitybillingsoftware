@@ -1,0 +1,5739 @@
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2980b9;
+    --text-color: #333;
+    --bg-color: #f9f9f9;
+    --border-color: #ddd;
+    --highlight-color: #f1c40f;
+    --total-bg: #ecf0f1;
+    --gst-tint: rgba(255, 255, 255, 0.1);
+}
+
+/* Ensure consistent box model */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: all 0.3s ease;
+    overflow-x: hidden;
+}
+
+/* 
+body.gst-mode {
+  --primary-color: #27ae60;
+  --secondary-color: #219a52;
+  --gst-tint: rgba(39, 174, 96, 0.1);
+} */
+
+#tools {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+#tools button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.gst-mode #tools button {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    background-color: var(--gst-tint);
+}
+
+#tools button:hover {
+    background-color: var(--secondary-color);
+}
+
+body.gst-mode #tools button:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+#tools button .material-icons {
+    font-size: 20px;
+    margin-right: 5px;
+}
+
+body.gst-mode #tools button .material-icons {
+    color: var(--primary-color);
+}
+
+body.gst-mode #tools button:hover .material-icons {
+    color: white;
+}
+
+#main-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+#bill-container {
+    width: 100%;
+    max-width: 794px;
+    /* A4 width in pixels for screen display */
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+#bill-container,
+#gst-bill-container,
+#manual-item-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    flex: 1;
+    min-width: 300px;
+}
+
+/* GST Bill Specific Styles */
+
+#gst-bill-container {
+    width: 100%;
+    max-width: 794px;
+    /* A4 width in pixels for screen display */
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#gst-bill-container .company-details {
+    text-align: center;
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+#gst-bill-container .customer-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    margin-bottom: 15px;
+    padding: 0px;
+    /* border: 1px solid var(--border-color); */
+    border-radius: 8px;
+    /* background-color: #f8f9fa; */
+    width: 100%;
+}
+
+#gst-bill-container .invoice-number-date {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 10px;
+}
+
+#gst-bill-container #billTo,
+#gst-bill-container #shipTo {
+    padding: 0 10px;
+    /* border: 1px solid var(--border-color); */
+    border-radius: 6px;
+    background-color: white;
+    width: 100%;
+}
+
+#gst-bill-container #billTo h4,
+#gst-bill-container #shipTo h4 {
+    margin-top: 0;
+    color: var(--primary-color);
+    /* border-bottom: 1px solid var(--border-color); */
+    /* padding-bottom: 8px; */
+    margin-bottom: 5px;
+}
+
+/* Content inside Bill To and Ship To */
+#gst-bill-container #billToContent,
+#gst-bill-container #shipToContent {
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+#gst-bill-container #billToContent p,
+#gst-bill-container #shipToContent p {
+    margin: 0px 0;
+    word-wrap: break-word;
+}
+
+#billToName,
+#shipToName {
+    font-size: 1em !important;
+    font-weight: bold !important;
+    margin-bottom: 8px;
+    color: var(--text-color);
+}
+
+@media (max-width: 768px) {
+    #gst-bill-container .customer-details {
+        /* grid-template-columns: 1fr; */
+        gap: 15px;
+    }
+
+    #gst-bill-container .invoice-number-date {
+        flex-direction: row;
+        gap: 10px;
+        text-align: center;
+    }
+
+    #gst-bill-container #billTo,
+    #gst-bill-container #shipTo {
+        min-height: auto;
+    }
+}
+
+
+#gst-bill-totals-table {
+    width: 100% !important;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: 0;
+    border-collapse: collapse;
+    background-color: var(--total-bg);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#gst-bill-totals-table td {
+    padding: 5px 18px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+}
+
+#gst-bill-totals-table td:last-child {
+    text-align: right;
+    font-weight: bold;
+}
+
+#gst-bill-totals-table tr:last-child td {
+    border-bottom: none;
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.tax-section {
+    margin: 20px 0;
+    /* border: 1px solid var(--border-color); */
+    border-radius: 6px;
+    overflow: hidden;
+
+}
+
+.tax-section table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tax-section th,
+.tax-section td {
+    font-size: 0.85em;
+    padding: 0px;
+    border: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.tax-section th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
+}
+
+.tax-section th.align-center {
+    text-align: center;
+}
+
+.tax-section td.align-center {
+    text-align: center;
+}
+
+/* Bill Footer Styles */
+.bill-footer {
+    width: 100%;
+    margin-top: 10px;
+    border: 1px solid var(--border-color);
+    padding: 8px;
+}
+
+.bill-footer table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    padding: 0;
+}
+
+.bill-footer td {
+    padding: 4px 6px;
+    vertical-align: top;
+    border: none;
+}
+
+/* Left column - align left */
+.bill-footer td:first-child {
+    text-align: left;
+    width: 55%;
+    border: 1px solid var(--border-color);
+}
+
+/* Right column - align center */
+.bill-footer td:last-child {
+    text-align: center;
+    width: 30%;
+}
+
+.bill-footer .bank-info {
+    font-size: 0.8em;
+    line-height: 1.2;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+
+.bill-footer .bank-info p {
+    margin: 2px 0;
+    padding: 0;
+    text-align: left;
+}
+
+.bill-footer .bank-info span {
+    margin-right: 10px;
+    display: inline-block;
+    text-align: left;
+}
+
+/* Bank info specific alignment */
+.bank-info,
+.bank-info p,
+.bank-info span,
+.bank-info strong {
+    text-align: left !important;
+}
+
+.bill-footer .align-center {
+    text-align: center;
+    padding-top: 8px;
+}
+
+/* Reduce spacing in declaration section */
+.bill-footer b {
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    display: block;
+}
+
+.bill-footer small {
+    font-size: 0.75em;
+    line-height: 1.1;
+    display: block;
+    margin: 1px 0;
+    text-align: left;
+}
+
+/* Specific adjustments for GST bill footer */
+#gst-bill-container .bill-footer {
+    margin-top: 8px;
+    padding: 6px;
+    border: 1px solid var(--border-color);
+}
+
+#gst-bill-container .list-of-items {
+    width: 100%;
+}
+
+#gst-bill-container .bill-footer td,
+#regular-bill-footer td {
+    padding: 3px 5px;
+}
+
+#gstCopyListManual {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+
+/* Amount in words section */
+#bill-amount-words {
+    font-size: 0.85em;
+    line-height: 1.2;
+    margin: 2px 0;
+    padding: 0;
+    font-weight: 500;
+    text-align: left;
+}
+
+/* Company signatory */
+#bill-company-signatory,
+#reg-bill-company-signatory {
+    font-size: 0.85em;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+/* Remove extra spacing from paragraphs */
+.bill-footer p {
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+
+/* Ensure all left column content is left-aligned */
+.bill-footer td:first-child p,
+.bill-footer td:first-child div,
+.bill-footer td:first-child span,
+.bill-footer td:first-child .bank-info {
+    text-align: left;
+}
+
+/* Ensure all right column content is center-aligned */
+.bill-footer td:last-child p,
+.bill-footer td:last-child div,
+.bill-footer td:last-child span {
+    text-align: center;
+}
+
+/* Force bank info alignment */
+#bill-account-holder,
+#bill-account-number,
+#bill-ifsc-code,
+#bill-branch,
+#bill-bank-name {
+    text-align: left;
+    display: inline;
+}
+
+.bank-info {
+    font-size: 0.9em;
+}
+
+.bank-info p {
+    margin: 5px 0;
+}
+
+.bank-info span {
+    margin-right: 15px;
+}
+
+.align-center {
+    text-align: center;
+}
+
+/* Regular Bill Styles */
+.company-details {
+    text-align: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--primary-color);
+    box-shadow: 0px 3px rgb(241, 241, 241);
+    padding-bottom: 10px;
+}
+
+.top-name {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: var(--primary-color);
+}
+
+.contact {
+    margin: 5px 0;
+    color: var(--text-color);
+}
+
+.contact p {
+    font-size: 0.90em;
+    margin: 0;
+}
+
+.customer-details {
+    margin-bottom: 5px;
+}
+
+.customer-details table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.customer-details .label {
+    padding: 5px 0;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.customer-details input {
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: 2px;
+    margin-left: 5px;
+    width: calc(100% - 70px);
+    max-width: 100%;
+    outline: none;
+    background: transparent;
+}
+
+.customer-details input:focus {
+    border-bottom-color: var(--primary-color);
+}
+
+.list-of-items table,
+#addedItemsManual table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+}
+
+.list-of-items th,
+#addedItemsManual th {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 4px;
+    text-align: center;
+}
+
+.list-of-items td,
+#addedItemsManual td {
+    padding: 5px 0 5px 0;
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.list-of-items thead th:nth-child(2),
+#addedItemsManual thead th:nth-child(2),
+.list-of-items tbody td:nth-child(2),
+#addedItemsManual tbody td:nth-child(2) {
+    text-align: left;
+}
+
+.list-of-items thead th:nth-child(3),
+#addedItemsManual thead th:nth-child(3),
+.list-of-items tbody td:nth-child(3),
+#addedItemsManual tbody td:nth-child(3) {
+    text-align: center;
+}
+
+.list-of-items thead th:nth-child(5),
+#addedItemsManual thead th:nth-child(5),
+.list-of-items tbody td:nth-child(5),
+#addedItemsManual tbody td:nth-child(5) {
+    text-align: right;
+}
+
+.list-of-items thead th:nth-child(6),
+#addedItemsManual thead th:nth-child(6),
+.list-of-items tbody td:nth-child(6),
+#addedItemsManual tbody td:nth-child(6) {
+    text-align: right;
+    padding-right: 14px;
+}
+
+.sizes {
+    color: gray;
+    margin: 0;
+    margin-bottom: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
+.notes {
+    color: #666;
+    font-size: 0.8rem;
+    margin-top: 5px;
+    white-space: pre-wrap;
+}
+
+.itemNameClass {
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.list-of-items tr:hover,
+#addedItemsManual tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+    cursor: pointer;
+}
+
+.total-cell {
+    font-weight: bold;
+    background-color: var(--total-bg);
+    text-align: center;
+}
+
+.size-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.size-input input,
+.size-input select {
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    flex: 1;
+    max-width: 100%;
+}
+
+#itemNotesManual {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    resize: vertical;
+    margin-bottom: 15px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.size-input button {
+    padding: 8px 15px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.size-input button:hover {
+    background-color: var(--secondary-color);
+}
+
+.remove-btn {
+    color: rgb(236, 73, 73);
+    border: none;
+    background-color: transparent;
+    padding: 5px 7px 2px 7px;
+    border-radius: 7px;
+    font-weight: 900;
+    vertical-align: middle;
+}
+
+.remove-btn:hover {
+    background-color: #cfcfcf50;
+}
+
+/* SIMPLE DRAG & DROP STYLES */
+.dragging {
+    opacity: 0.6;
+    background: rgba(52, 152, 219, 0.1) !important;
+}
+
+.drag-over {
+    border-top: 2px solid gray !important;
+    /* border-bottom: 2px solid var(--primary-color) !important; */
+}
+
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 8px 8px 0 0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.3em;
+}
+
+.close {
+    color: white;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close:hover {
+    opacity: 0.8;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.tax-input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 10px;
+}
+
+.tax-input-group label {
+    min-width: 150px;
+    font-weight: 500;
+}
+
+.tax-input-group input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.tax-input-group span {
+    min-width: 30px;
+    font-weight: 500;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 15px 20px;
+    border-top: 1px solid var(--border-color);
+    background-color: #f9f9f9;
+    border-radius: 0 0 8px 8px;
+}
+
+#discount-type-select{
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    flex: 1;
+    max-width: 100%;
+}
+
+
+.btn-cancel,
+.btn-apply {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.btn-cancel {
+    background-color: #95a5a6;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background-color: #7f8c8d;
+}
+
+.btn-apply {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-apply:hover {
+    background-color: var(--secondary-color);
+}
+
+/* Styles for tax rows */
+#discount-row td,
+#gst-row td {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+}
+
+#discount-row {
+    color: #e74c3c;
+}
+
+#gst-row {
+    color: #27ae60;
+}
+
+#grand-total-row td {
+    font-weight: bold;
+    background-color: var(--total-bg);
+    border-top: 2px solid var(--border-color);
+    font-size: 1.1em;
+}
+
+/* Customer Details Modal Styles */
+.section-divider {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 20px 0;
+}
+
+.customer-type-selector {
+    margin-bottom: 20px;
+}
+
+.bill-to-section,
+.ship-to-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: #f8f9fa;
+}
+
+.bill-to-section h4,
+.ship-to-section h4 {
+    margin-top: 0;
+    color: var(--primary-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+.gst-input-group {
+    display: flex;
+    gap: 10px;
+}
+
+.gst-input-group select,
+.gst-input-group input {
+    flex: 1;
+}
+
+.customer-suggestions {
+    position: absolute;
+    /* <--- Changed from sticky */
+    top: 100%;
+    /* <--- Added: Puts it directly below input */
+    left: 0;
+    /* <--- Added: Aligns left */
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1000;
+    width: 100%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 2px;
+    /* <--- Added: Tiny gap for visuals */
+}
+
+.customer-suggestion-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.customer-suggestion-item:hover {
+    background-color: var(--gst-tint);
+}
+
+.customer-suggestion-item:last-child {
+    border-bottom: none;
+}
+
+/* item suggestioon */
+.size-input {
+    position: relative;
+}
+
+.item-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 2px;
+}
+
+.item-suggestion-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.item-suggestion-item:hover {
+    background-color: var(--gst-tint);
+}
+
+.item-suggestion-item:last-child {
+    border-bottom: none;
+}
+
+/* Settings Sidebar Styles */
+#settings-sidebar {
+    position: fixed;
+    top: 0;
+    right: -350px;
+    width: 300px;
+    height: 100%;
+    background-color: white;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease;
+    z-index: 1001;
+    padding: 20px;
+    overflow-y: auto;
+    display: block;
+}
+
+#settings-sidebar.open {
+    right: 0;
+}
+
+#settings-sidebar h2 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.settings-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.settings-btn {
+    padding: 12px 15px;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    text-align: left;
+}
+
+body.gst-mode .settings-btn {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    background-color: var(--gst-tint);
+}
+
+body.gst-mode .settings-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.settings-btn:hover {
+    background-color: var(--secondary-color);
+}
+
+.settings-btn .material-icons {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+body.gst-mode .settings-btn .material-icons {
+    color: var(--primary-color);
+}
+
+body.gst-mode .settings-btn:hover .material-icons {
+    color: white;
+}
+
+.settings-close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+#settings-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: none;
+}
+
+#settings-overlay.open {
+    display: block;
+}
+
+/* New Styles for Enhanced Features */
+.search-add-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-add-bar input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.items-list {
+    height: 60vh;
+    max-height: 75vh;
+    overflow-y: auto;
+}
+
+.item-card,
+.customer-card {
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin-bottom: 10px;
+    background-color: white;
+}
+
+.item-header,
+.customer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.item-name,
+.customer-name {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.item-details,
+.customer-details-text {
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+
+.customer-details input {
+    width: 85%;
+    margin-left: 0;
+}
+
+#custAddr {
+    width: 79%;
+}
+
+#custPhone {
+    width: 73%;
+}
+
+#billDate {
+    width: 82%;
+}
+
+#billNo {
+    width: 70%;
+}
+
+.item-actions,
+.customer-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-edit {
+    background-color: #f39c12;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-delete {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-edit:hover {
+    background-color: #e67e22;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+.form-group input[type="checkbox"] {
+    width: auto;
+    margin-right: 8px;
+}
+
+/* Saved Bills Styles */
+.saved-bill-card {
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin-bottom: 10px;
+    background-color: white;
+    cursor: pointer;
+}
+
+.saved-bill-card:hover {
+    background-color: var(--bg-color);
+}
+
+.saved-bill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.saved-bill-title {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.saved-bill-details {
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.saved-bill-total {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+/* Dimensions Styles */
+.dimensions {
+    font-size: 0.8em;
+    color: #666;
+    margin: 5px 0;
+    font-weight: 500;
+}
+
+/* Updated Add Item Modal Styles */
+#add-item-modal .modal-content {
+    width: 95%;
+    height: 80vh;
+    max-height: 80vh;
+    /* max-width: 600px;
+    max-height: 500px; */
+    display: flex;
+    flex-direction: column;
+}
+
+#add-item-modal .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    /* max-height: calc(500px - 120px); */
+}
+
+#add-item-modal .form-group {
+    margin-bottom: 15px;
+}
+
+#add-item-modal .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+#add-item-modal .form-group input,
+#add-item-modal .form-group select,
+#add-item-modal .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: white;
+    transition: border-color 0.2s;
+}
+
+#add-item-modal .form-group input:focus,
+#add-item-modal .form-group select:focus,
+#add-item-modal .form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+#add-item-modal .form-group textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+#add-item-modal .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    padding: 15px 20px;
+    border-top: 1px solid var(--border-color);
+    background-color: #f9f9f9;
+    position: sticky;
+    bottom: 0;
+}
+
+/* Scrollbar styling for the modal body */
+#add-item-modal .modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+#add-item-modal .modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+#add-item-modal .modal-body::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+#add-item-modal .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Ensure the modal header stays fixed */
+#add-item-modal .modal-header {
+    position: sticky;
+    top: 0;
+    background-color: var(--primary-color);
+    z-index: 10;
+    border-radius: 8px 8px 0 0;
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+    #main-container {
+        flex-direction: column;
+    }
+
+    /* .customer-details input {
+        width: 100%;
+        margin-left: 0;
+    } */
+
+    #manual-item-container .size-input {
+        align-items: stretch;
+    }
+
+    #addItemScan {
+        width: 30px;
+    }
+
+    #manual-item-container .size-input input,
+    #manual-item-container .size-input select,
+    #manual-item-container .size-input button {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    #manual-item-container .size-input #addItemScan {
+        width: 45px;
+        margin-left: 0;
+    }
+
+    .customer-details input {
+        width: 85%;
+        margin-left: 0;
+    }
+    #custAddr {
+        width: 78%;
+    }
+
+    #custPhone {
+        width: 72%;
+    }
+
+
+    #billNo {
+        width: 71%;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+
+    .tax-input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .tax-input-group label {
+        min-width: auto;
+        margin-bottom: 5px;
+    }
+
+    #gst-bill-container .customer-details {
+        /* grid-template-columns: 1fr; */
+        gap: 5px;
+    }
+
+    #gst-bill-container .invoice-number-date {
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .tax-section {
+        width: 100%;
+        margin: 20px 0;
+        overflow-x: auto;
+    }
+
+    .tax-section table {
+        min-width: 600px;
+    }
+
+    @media (max-width: 820px) {
+        #gst-bill-container {
+            max-width: 100%;
+            padding: 15px;
+            margin: 0 10px;
+        }
+
+        /* #gst-bill-totals-table {
+            max-width: 100%;
+            margin: 20px auto;
+        } */
+    }
+
+    @media (max-width: 768px) {
+
+        /* html {
+            zoom: 0.76;
+        } */
+        #gst-bill-container {
+            padding: 10px;
+            margin: 0 5px;
+        }
+
+        /* #gst-bill-totals-table {
+            max-width: 100%;
+        } */
+
+        /* #gst-bill-totals-table td {
+            padding: 8px 12px;
+        } */
+    }
+
+    #tools button {
+        padding: 10px;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+    }
+
+    #tools button .material-icons {
+        margin-right: 0;
+        font-size: 20px;
+        line-height: 1;
+    }
+
+    #tools button:not(.material-icons) {
+        font-size: 0;
+        line-height: 0;
+    }
+
+    #history-sidebar {
+        width: 80%;
+        right: -90%;
+    }
+
+    /* #settings-sidebar {
+      width: 80%;
+      right: -90%;
+  } */
+
+    .search-add-bar {
+        flex-direction: column;
+    }
+
+    .item-actions,
+    .customer-actions {
+        flex-direction: column;
+    }
+
+    #add-item-modal .modal-content {
+        width: 95%;
+        max-height: 80vh;
+    }
+
+    #add-item-modal .modal-body {
+        max-height: calc(80vh - 120px);
+    }
+
+    #add-item-modal .form-actions {
+        flex-direction: row;
+    }
+
+    /* #add-item-modal .form-actions button {
+        width: 100%;
+    } */
+}
+
+.history-item-total {
+    font-size: 0.8em;
+    color: #27ae60;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+/* Add this to ensure GSTIN is visible in GST mode */
+/* body.gst-mode #companyGstin {
+    display: block ;
+} */
+
+/* body:not(.gst-mode) #companyGstin {
+    display: none !important;
+} */
+
+/* Center align tax section */
+.tax-section th.align-center,
+.tax-section td.align-center {
+    text-align: center !important;
+}
+
+.tax-section th,
+.tax-section td {
+    text-align: center;
+}
+
+/* Larger modal with scrolling */
+#customer-details-modal .modal-content {
+    max-height: 80vh;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+}
+
+#customer-details-modal .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    max-height: calc(80vh - 120px);
+    padding: 20px;
+}
+
+@media (max-width: 768px) {
+    #customer-details-modal .modal-content {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    #customer-details-modal .modal-body {
+        max-height: calc(90vh - 120px);
+    }
+
+    #customer-details-modal .gst-input-group {
+        flex-direction: column;
+    }
+
+    #customer-details-modal .gst-input-group select,
+    #customer-details-modal .gst-input-group input {
+        width: 100%;
+    }
+}
+
+/* Fix Company Details Modal Height and Scrolling */
+#company-info-modal .modal-content {
+    max-height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+#company-info-modal .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    max-height: calc(500px - 120px);
+    /* Subtract header and footer height */
+    padding: 20px;
+}
+
+/* Scrollbar styling for company details modal */
+#company-info-modal .modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+#company-info-modal .modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+#company-info-modal .modal-body::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+#company-info-modal .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Ensure the modal header stays fixed */
+#company-info-modal .modal-header {
+    position: sticky;
+    top: 0;
+    background-color: var(--primary-color);
+    z-index: 10;
+    border-radius: 8px 8px 0 0;
+}
+
+/* Ensure the modal footer stays fixed */
+#company-info-modal .modal-footer {
+    position: sticky;
+    bottom: 0;
+    background-color: #f9f9f9;
+    z-index: 10;
+    border-radius: 0 0 8px 8px;
+}
+
+/* Adjust section spacing for better scrolling */
+#company-info-modal .section-divider {
+    margin: 15px 0;
+}
+
+#company-info-modal .form-group {
+    margin-bottom: 12px;
+}
+
+/* Larger modal with scrolling alternative */
+#company-info-modal .modal-content {
+    max-height: 80vh;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+}
+
+#company-info-modal .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    max-height: calc(80vh - 120px);
+    padding: 20px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    #company-info-modal .modal-content {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    #company-info-modal .modal-body {
+        max-height: calc(90vh - 120px);
+    }
+
+    .modal-body {
+        zoom: 0.8;
+    }
+}
+
+/* Toggle Switch Styles */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.toggle-slider {
+    background-color: var(--primary-color);
+}
+
+input:checked+.toggle-slider:before {
+    transform: translateX(26px);
+}
+
+.mode-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 15px 0;
+    font-weight: 500;
+}
+
+.section-row {
+    background-color: #ffe8b5 !important;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.section-row td {
+    text-align: left;
+}
+
+/* In style.css, add these styles */
+.section-total-row td {
+    background-color: #f8f8f8;
+    /* Very light variant of the section color */
+    /* border-top: 1px dashed #aaa !important;
+    border-bottom: 2px solid #ddd !important; */
+    color: #333;
+}
+
+.collapse-btn {
+    color: #000;
+    background: inherit;
+    border: none;
+    padding: 3px 8px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-left: 10px;
+    border-radius: 3px;
+
+}
+
+.hidden-row {
+    display: none;
+}
+
+/* Toggle button styles */
+#toggleDiscountBtn,
+#toggleDimensionBtn {
+    background-color: #95a5a6;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+#toggleDiscountBtn:hover,
+#toggleDimensionBtn:hover {
+    background-color: #7f8c8d;
+}
+
+#toggleDiscountBtn.active,
+#toggleDimensionBtn.active {
+    background-color: var(--primary-color);
+}
+
+/* Actions Column Styles */
+.actions-cell {
+    text-align: center;
+    padding: 5px !important;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    align-items: center;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    padding: 4px;
+    border-radius: 3px;
+    cursor: pointer;
+    color: #666;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-btn:hover {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.copy-btn:hover {
+    color: #27ae60;
+}
+
+.dimensions-btn:hover {
+    color: #3498db;
+}
+
+.remove-btn:hover {
+    color: #e74c3c;
+}
+
+.action-btn .material-icons {
+    font-size: 16px;
+}
+
+.discount-info {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 10px;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border-left: 3px solid var(--primary-color);
+}
+
+.tax-info {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 10px;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border-left: 3px solid #27ae60;
+}
+
+.tax-info p {
+    margin: 5px 0;
+}
+
+/* Column Dialog Styles */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.dialog-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    min-width: 300px;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.dialog-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.dialog-buttons button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.dialog-buttons button:first-child {
+    background: #007bff;
+    color: white;
+}
+
+/* PDF Page Break Improvements */
+/* Enhanced PDF Page Break Improvements */
+@media print {
+
+    /* Allow natural flow of content */
+    body {
+        page-break-inside: auto;
+    }
+
+    /* Allow tables to break naturally across pages */
+    table {
+        page-break-inside: auto;
+    }
+
+    /* Keep table rows together (don't split a row between pages) */
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    /* Keep table cells together */
+    td,
+    th {
+        page-break-inside: avoid;
+    }
+
+    /* Ensure table headers repeat on each page */
+    /* thead {
+        display: table-header-group;
+    } */
+
+    /* Keep these critical sections together if possible */
+    .avoid-break {
+        page-break-inside: avoid;
+    }
+
+    /* Allow list of items to break naturally */
+    .list-of-items {
+        page-break-inside: auto;
+    }
+}
+
+/* PDF-specific styles for html2pdf */
+.pdf-container {
+    page-break-inside: auto;
+}
+
+/* Ensure no forced breaks in main containers */
+#bill-container,
+#gst-bill-container {
+    page-break-before: auto;
+    page-break-after: auto;
+    page-break-inside: auto;
+}
+
+/* Additional print-specific styles */
+@media print {
+    body {
+        margin: 0;
+        padding: 0;
+        background: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    #bill-container,
+    #gst-bill-container {
+        box-shadow: none;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+    }
+
+    /* Hide unnecessary elements in print */
+    #tools,
+    #settings-sidebar,
+    #settings-overlay,
+    #manual-item-container,
+    .modal {
+        display: none !important;
+    }
+
+    /* Ensure proper scaling */
+    html,
+    body {
+        width: 210mm;
+        height: 297mm;
+    }
+}
+
+/* Payment & Credit Note Dialog Styles */
+.payment-dialog,
+.ledger-dialog {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+
+.payment-dialog.active,
+.ledger-dialog.active {
+    display: flex;
+}
+
+.payment-dialog-content,
+.ledger-dialog-content {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.payment-dialog-header,
+.ledger-dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: var(--primary-color);
+    color: white;
+}
+
+.payment-dialog-body,
+.ledger-dialog-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+/* Payment Type Toggle */
+.payment-type-toggle {
+    display: flex;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.toggle-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.toggle-btn.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Payment Controls */
+.payment-controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.payment-search {
+    flex: 1;
+}
+
+.payment-search input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.payment-filters {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.filter-btn {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.filter-select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: white;
+}
+
+/* Add Payment Form */
+.add-payment-form {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.add-payment-form h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+}
+
+.add-payment-form .form-group {
+    margin-bottom: 15px;
+}
+
+.add-payment-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.add-payment-form input,
+.add-payment-form select,
+.add-payment-form textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.add-payment-form textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+/* Payments Table */
+.payments-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.payments-table th,
+.payments-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.payments-table th {
+    background: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+
+.payment-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.edit-payment-btn,
+.delete-payment-btn {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.8em;
+}
+
+.edit-payment-btn {
+    background: #f39c12;
+    color: white;
+}
+
+.delete-payment-btn {
+    background: #e74c3c;
+    color: white;
+}
+
+/* Ledger Styles */
+.ledger-controls {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.date-range {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.date-inputs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.date-inputs input {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.customer-summary {
+    background: #e8f4fd;
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.customer-summary h4 {
+    margin-top: 0;
+    color: var(--primary-color);
+}
+
+.summary-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.summary-item {
+    font-size: 0.9em;
+}
+
+.summary-item strong {
+    color: #2c3e50;
+}
+
+.ledger-section {
+    margin-bottom: 30px;
+}
+
+.ledger-section h4 {
+    margin-bottom: 10px;
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 5px;
+}
+
+.ledger-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ledger-table th,
+.ledger-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.ledger-table th {
+    background: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+
+.total-row {
+    background: var(--total-bg);
+    font-weight: bold;
+}
+
+.total-row td {
+    border-top: 2px solid var(--border-color);
+}
+
+/* Action buttons in customer cards */
+.btn-payment,
+.btn-ledger {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+}
+
+.btn-ledger {
+    background: #3498db;
+}
+
+.btn-payment:hover {
+    background: #219a52;
+}
+
+.btn-ledger:hover {
+    background: #2980b9;
+}
+
+.somespace {
+    margin: 20px 0 10px 0;
+}
+
+/* Close buttons */
+.close-payment-dialog,
+.close-ledger-dialog {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Purchase Price Dialog Styles */
+.purchase-price-dialog {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+
+.purchase-price-dialog.active {
+    display: flex;
+}
+
+.purchase-price-dialog-content {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.purchase-price-dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: var(--primary-color);
+    color: white;
+}
+
+.purchase-price-dialog-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.purchase-price-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 15px 20px;
+    border-top: 1px solid var(--border-color);
+    background: #f9f9f9;
+}
+
+.purchase-price-items-list {
+    margin-top: 15px;
+}
+
+.purchase-price-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin-bottom: 10px;
+    background: #f8f9fa;
+}
+
+.purchase-price-item-name {
+    flex: 1;
+    font-weight: 500;
+}
+
+.purchase-price-input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.purchase-price-input-group label {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.purchase-price-input {
+    width: 120px;
+    padding: 6px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    text-align: right;
+}
+
+.current-rate {
+    font-size: 0.8em;
+    color: #666;
+    background: #e9ecef;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+/* Profit Calculation Styles */
+.profit-rate-display {
+    text-align: center;
+    line-height: 1.2;
+}
+
+.original-rate {
+    font-size: 0.9em;
+    color: #666;
+    text-decoration: line-through;
+}
+
+.profit-rate {
+    font-size: 1em;
+    font-weight: bold;
+    color: #27ae60;
+}
+
+.purchase-rate {
+    font-size: 0.8em;
+    color: #e74c3c;
+}
+
+.profit-amount-display {
+    text-align: center;
+    line-height: 1.2;
+}
+
+.profit-amount {
+    font-size: 1em;
+    font-weight: bold;
+    color: #27ae60;
+}
+
+.profit-label {
+    font-size: 0.8em;
+    color: #666;
+}
+
+.profit-total-display {
+    text-align: center;
+    line-height: 1.3;
+}
+
+.total-profit {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #27ae60;
+}
+
+.profit-total-label {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.profit-discount {
+    font-size: 0.8em;
+    color: #e67e22;
+    font-style: italic;
+}
+
+/* Profit button active state */
+.settings-btn[style*="background-color: #27ae60"] {
+    color: white;
+}
+
+.settings-btn[style*="background-color: #27ae60"] .material-icons {
+    color: white;
+}
+
+.btn-clear {
+    background-color: #e67e22;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-right: auto;
+}
+
+.btn-clear:hover {
+    background-color: #d35400;
+}
+
+/* Notification System */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.notification {
+    padding: 12px 20px;
+    border-radius: 4px;
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: slideIn 0.3s ease;
+    max-width: 300px;
+}
+
+.notification.success {
+    background-color: #27ae60;
+    border-left: 4px solid #219a52;
+}
+
+.notification.error {
+    background-color: #e74c3c;
+    border-left: 4px solid #c0392b;
+}
+
+.notification.warning {
+    background-color: #f39c12;
+    border-left: 4px solid #e67e22;
+}
+
+.notification.info {
+    background-color: #3498db;
+    border-left: 4px solid #2980b9;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification.fade-out {
+    animation: slideOut 0.3s ease forwards;
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Custom Confirm Dialog */
+.confirm-dialog {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+
+.confirm-dialog.active {
+    display: flex;
+}
+
+.confirm-dialog-content {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.confirm-dialog-header {
+    padding: 20px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 8px 8px 0 0;
+}
+
+.confirm-dialog-header h3 {
+    margin: 0;
+    font-size: 1.3em;
+}
+
+.confirm-dialog-body {
+    padding: 20px;
+}
+
+.confirm-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 15px 20px;
+    border-top: 1px solid var(--border-color);
+    background: #f9f9f9;
+    border-radius: 0 0 8px 8px;
+}
+
+/* Terms List Styles */
+.terms-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.terms-controls select {
+    flex: 1;
+}
+
+.terms-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.terms-item input {
+    flex: 1;
+}
+
+.remove-terms-item {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.remove-terms-item:hover {
+    background: #c0392b;
+}
+
+.btn-add-item {
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.btn-add-item:hover {
+    background: #219a52;
+}
+
+.terms-preview-section {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.terms-preview {
+    min-height: 100px;
+    padding: 10px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.bill-footer-list {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.bill-footer-list h4 {
+    margin-top: 0;
+    color: var(--primary-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+.bill-footer-list ul,
+.bill-footer-list ol {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.bill-footer-list li {
+    margin-bottom: 5px;
+    line-height: 1.4;
+}
+
+/* Hide button in GST mode */
+body.gst-mode #addTermsListSectionBtn {
+    display: none !important;
+}
+
+/* Add to CSS */
+.form-row {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.form-row .form-group {
+    flex: 1;
+    margin-bottom: 15px;
+}
+
+.form-row input {
+    width: 100%;
+}
+
+/* Custom padding inputs styling */
+#custom-padding-group .form-row {
+    gap: 8px;
+}
+
+#custom-padding-group input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Dimension Toggle System */
+.dimension-input-with-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.dimension-toggle {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.dimension-inputs-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Update existing dimension inputs to work with toggle system */
+#dimensionInputs {
+    flex-direction: row;
+    align-items: stretch;
+}
+
+#dimensionInputs .dimension-input-with-toggle {
+    flex: 1;
+}
+
+#dimensionInputs input[type="number"] {
+    flex: 1;
+}
+
+/* Red dimension labels for unchecked dimensions */
+/* Red dimension labels for unchecked dimensions - More specific selectors */
+.dimensions span[style*="color: red"],
+.dimensions span[style*="red"],
+.dimensions [style*="color: red"],
+.itemNameClass+.dimensions [style*="color: red"] {
+    color: #e74c3c !important;
+    font-weight: bold;
+    opacity: 0.8;
+}
+
+/* Ensure red color overrides any other styles */
+tr[data-id] .dimensions span[style*="color: red"] {
+    color: #e74c3c !important;
+}
+
+/* 
+ */
+
+.saved-bill-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.btn-edit,
+.btn-delete {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-edit {
+    background: #3498db;
+    color: white;
+}
+
+.btn-delete {
+    background: #e74c3c;
+    color: white;
+}
+
+.btn-edit:hover {
+    background: #2980b9;
+}
+
+.btn-delete:hover {
+    background: #c0392b;
+}
+
+.period-selector {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.period-inputs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#period-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+}
+
+#from-date-input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+#batch-invoice-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: monospace;
+    resize: vertical;
+}
+
+/* new ledger styles */
+.unified-ledger-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.unified-ledger-table th,
+.unified-ledger-table td {
+    border: 1px solid #999;
+    padding: 8px;
+    vertical-align: top;
+    text-align: center;
+}
+
+.unified-ledger-table th {
+    background: var(--primary-color);
+    text-align: center;
+    color: white;
+}
+
+.unified-ledger-table .bold {
+    font-weight: bold;
+}
+
+.unified-ledger-table .right {
+    text-align: right;
+}
+
+.unified-ledger-table .highlight {
+    background: #e8ffd8;
+    font-weight: bold;
+}
+
+#custom-method-container {
+    margin-top: 5px;
+}
+
+#custom-payment-method {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+/* Restored Bills specific styles */
+.btn-download,
+.btn-load,
+.btn-save {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-download:hover {
+    background: #2980b9;
+}
+
+.btn-load {
+    background: #27ae60;
+}
+
+.btn-load:hover {
+    background: #219a52;
+}
+
+.btn-save {
+    background: #f39c12;
+}
+
+.btn-save:hover {
+    background: #e67e22;
+}
+
+/* Restored bill card specific */
+.saved-bill-card .saved-bill-details div:last-child {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+/* Primary Button Styles */
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    text-decoration: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary .material-icons {
+    font-size: 18px;
+}
+
+/* Alternative simpler primary button */
+.btn-primary.simple {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.3s ease;
+}
+
+.btn-primary.simple:hover {
+    background: #2980b9;
+}
+
+/* For the search-add-bar specifically */
+.search-add-bar .btn-primary {
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+/* If you want it to match your existing button styles */
+.search-add-bar .btn-primary {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.3s ease;
+}
+
+.search-add-bar .btn-primary:hover {
+    background: #219a52;
+}
+
+/*
+terms modal 
+ */
+.terms-list-modal .modal-body {
+    max-height: 70vh !important;
+    overflow-y: auto !important;
+}
+
+/* Add Stock Button Style */
+.btn-add-stock {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-add-stock:hover {
+    background-color: #27ae60;
+}
+
+/* Stock Modal Input Layout */
+.stock-input-group {
+    display: flex;
+    gap: 10px;
+}
+
+.stock-input-group input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.stock-input-group button {
+    padding: 0 20px;
+    white-space: nowrap;
+}
+
+#regular-bill-heading,
+#gst-bill-heading {
+    font-size: 1.3em;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--text-color);
+    margin: 0 0 10px 0;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+/* Branding Styles */
+.company-details {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+}
+
+/* Container for the text part of header so it stays grouped */
+.company-text {
+    flex: 1;
+    text-align: center;
+}
+
+.bill-logo {
+    max-height: 100px;
+    max-width: 150px;
+    object-fit: contain;
+}
+
+/* Footer Sign/Stamp Container */
+/* Stamp Cell Styling */
+#stamp-cell {
+    text-align: center;
+    vertical-align: middle !important;
+    /* Center stamp vertically */
+}
+
+.bill-stamp {
+    max-height: 80px;
+    max-width: 100%;
+    opacity: 0.8;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Signature Cell Styling */
+/* Footer Image Styles */
+.bill-stamp {
+    max-height: 80px;
+    max-width: 100%;
+    opacity: 0.8;
+    display: inline-block;
+    /* Ensures center alignment works */
+}
+
+.bill-signature {
+    max-height: 60px;
+    max-width: 100%;
+    object-fit: contain;
+    display: inline-block;
+    /* Ensures center alignment works */
+    margin-bottom: 5px;
+}
+
+/* Ensure cells vertically align bottom as requested */
+#stamp-cell,
+#signature-cell {
+    vertical-align: bottom !important;
+}
+
+/* Modal Image Previews */
+.img-preview-box {
+    margin-bottom: 10px;
+    padding: 5px;
+    border: 1px dashed var(--border-color);
+    background: #f8f9fa;
+    border-radius: 4px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.img-preview-box img {
+    max-height: 60px;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.img-preview-box span {
+    font-size: 0.8em;
+    color: #999;
+    font-style: italic;
+}
+
+/* Convert Button Styles */
+#toggleConvertBtn {
+    transition: all 0.3s ease;
+}
+
+#toggleConvertBtn.active {
+    background-color: #8e44ad !important;
+    /* Purple to distinguish it */
+    color: white;
+}
+
+#convertUnit {
+    border: 1px solid var(--secondary-color);
+    background-color: #f0f0f0;
+}
+
+/* [ADD TO END OF FILE] */
+
+/* Adjustment Drag & Drop Styles */
+.adj-row {
+    cursor: grab;
+    transition: background-color 0.2s;
+}
+
+.adj-row:active {
+    cursor: grabbing;
+}
+
+.adj-dragging {
+    opacity: 0.5;
+    background-color: #e3f2fd;
+    border: 2px dashed #3498db;
+}
+
+.adj-drag-over {
+    border-top: 2px solid #3498db !important;
+}
+
+/* Visual Taxable Row Style */
+.taxable-row td {
+    background-color: #fcf8e3;
+    /* Light yellow */
+    color: #8a6d3b;
+    font-size: 0.9em;
+    font-style: italic;
+    border-top: 1px dashed #faebcc;
+    border-bottom: 1px dashed #faebcc;
+}
+
+/* Modal Table Actions */
+.adj-action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 5px;
+    color: #666;
+}
+
+.adj-action-btn:hover {
+    color: #333;
+}
+
+.adj-action-btn.edit {
+    color: #f39c12;
+}
+
+.adj-action-btn.remove {
+    color: #e74c3c;
+}
+
+
+/* [ADD TO END OF style.css] */
+
+/* [ADD TO END OF style.css] */
+
+/* Fix Regular Bill Total Table Alignment */
+#bill-total-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+#bill-total-table td {
+    padding: 5px 10px !important;
+    /* Overrides the 15px global padding */
+    border: none !important;
+    /* specific clean look for totals */
+}
+
+/* Force Right Alignment for the Label Column (Sub Total, Discount, etc.) */
+#bill-total-table td[colspan="5"] {
+    text-align: right !important;
+    padding-right: 20px !important;
+    /* Add spacing between label and amount */
+}
+
+/* Force Alignment for the Amount Column */
+#bill-total-table td:last-child {
+    text-align: center !important;
+    /* Enforce center as per your HTML structure */
+    width: 20% !important;
+    white-space: nowrap;
+}
+
+/* Ensure Total Cells (Subtotal/Grand Total) stay bold */
+#bill-total-table .total-cell {
+    font-weight: bold;
+    background-color: var(--total-bg);
+}
+
+
+/* [ADD TO END OF style.css] */
+
+/* Fix width for Adjustment Modal Inputs */
+#adjustment-modal .form-row .form-group {
+    margin-bottom: 0;
+    /* Let the row gap handle spacing */
+}
+
+#adjustment-modal select,
+#adjustment-modal input[type="number"],
+#adjustment-modal input[type="text"] {
+    height: 38px;
+    /* Consistent height for alignment */
+}
+
+/* [ADD TO END OF style.css] */
+
+/* Force hide Actions column in Regular Bill View Table */
+#copyListManual .actions-cell {
+    display: none !important;
+}
+
+
+
+/* [ADD TO END OF style.css] */
+
+/* Responsive Zoom Levels */
+
+/* Tablet / Small Laptop */
+@media (max-width: 1024px) {
+    #main-container {
+        zoom: 0.9;
+        /* 90% scale */
+    }
+}
+
+/* Large Mobile / Small Tablet */
+@media (max-width: 768px) {
+    #main-container {
+        zoom: 0.75;
+        /* 75% scale */
+        flex-direction: column;
+        /* Ensure items stack vertically */
+    }
+
+    /* Ensure full width when stacked */
+    #bill-container,
+    #gst-bill-container,
+    #manual-item-container {
+        max-width: 100% !important;
+        min-width: 100% !important;
+    }
+}
+
+/* Small Mobile */
+@media (max-width: 350px) {
+    #main-container {
+        zoom: 0.6;
+        /* 60% scale */
+    }
+}
+
+
+/* ============================================================
+   FINAL ROBUST PRINT STYLES (Fixes Row Splitting)
+   ============================================================ */
+@media print {
+
+    /* 1. Page Setup */
+    @page {
+        margin: 10mm;
+        size: A4 portrait;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* 2. Container Handling */
+    #main-container,
+    #bill-container,
+    #gst-bill-container,
+    .list-of-items {
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        /* Allow container to break */
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+    }
+
+    /* 3. Table Handling */
+    table {
+        width: 100% !important;
+        border-collapse: collapse;
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+    }
+
+    tbody {
+        page-break-inside: auto !important;
+    }
+
+    /* 4. Row Handling - THE CRITICAL FIX */
+    tr {
+        /* Force row to stay together */
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+
+        /* Ensure browser treats it as an atomic block */
+        display: table-row !important;
+    }
+
+    /* Add buffer to cells to prevent tight cuts */
+    td,
+    th {
+        padding-top: 4px !important;
+        padding-bottom: 4px !important;
+        page-break-inside: avoid !important;
+    }
+
+    /* 5. Header & Footer Repeating */
+    thead {
+        display: table-header-group !important;
+    }
+
+    tfoot {
+        display: table-footer-group !important;
+    }
+
+    /* 6. Bill Footer Section (Bank details etc) */
+    .bill-footer {
+        page-break-inside: avoid !important;
+        /* Try to keep footer together */
+        break-inside: avoid !important;
+        width: 100% !important;
+        margin-top: 20px !important;
+        display: table !important;
+        /* Ensure it behaves like a table for breaking */
+    }
+
+    /* 7. Hide UI Elements */
+    #tools,
+    #settings-sidebar,
+    #settings-overlay,
+    #manual-item-container,
+    .modal,
+    .notification-container,
+    #reg-footer-btn,
+    .add-payment-form,
+    .payment-dialog,
+    .ledger-dialog {
+        display: none !important;
+    }
+
+    /* 8. Visibility Logic */
+    #gst-bill-container {
+        display: none !important;
+    }
+
+    #bill-container {
+        display: block !important;
+    }
+
+    body.gst-mode #bill-container {
+        display: none !important;
+    }
+
+    body.gst-mode #gst-bill-container {
+        display: block !important;
+    }
+
+
+
+    /* 9. Input Styling */
+    input {
+        border: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+}
+
+/* --- Card UI Overhaul --- */
+.card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    /* Aligns top for multi-line text */
+    width: 100%;
+    position: relative;
+    /* Context for dropdown */
+}
+
+.card-info {
+    flex: 1;
+    font-weight: bold;
+    font-size: 1.1em;
+    padding-right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.card-sub-info {
+    font-size: 0.85em;
+    color: #666;
+    font-weight: normal;
+}
+
+.card-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+/* Icon Buttons */
+.icon-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    transition: background 0.2s;
+}
+
+.icon-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: var(--primary-color);
+}
+
+.icon-btn .material-icons {
+    font-size: 24px;
+}
+
+/* Action Dropdown Menu */
+.action-menu-container {
+    position: relative;
+}
+
+.action-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    border: 1px solid #eee;
+    z-index: 100;
+    min-width: 160px;
+    display: none;
+    /* Hidden by default */
+    flex-direction: column;
+    padding: 5px 0;
+}
+
+.action-dropdown.show {
+    display: flex;
+}
+
+.dropdown-item {
+    background: none;
+    border: none;
+    text-align: left;
+    padding: 10px 15px;
+    width: 100%;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dropdown-item:hover {
+    background-color: #f5f5f5;
+}
+
+.dropdown-item .material-icons {
+    font-size: 18px;
+    color: #666;
+}
+
+.dropdown-item.delete-item {
+    color: #e74c3c;
+}
+
+.dropdown-item.delete-item .material-icons {
+    color: #e74c3c;
+}
+
+/* Details Section visibility */
+.details-section {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.details-section.hidden {
+    display: none;
+}
+
+/* Scan Button Style */
+.icon-btn-square {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn-square:hover {
+    background-color: #2980b9;
+}
+
+/* Scanner Overlay Line */
+/* .scan-overlay {
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    width: 80%;
+    height: 2px;
+    background-color: red;
+    box-shadow: 0 0 4px red;
+    z-index: 10;
+} */
+
+/* Ensure video fits */
+#scanner-video {
+    transform: scaleX(-1);
+    /* Mirror effect for better UX */
+}
+
+/* Styling for the More Options Button */
+#toggle-more-options-btn {
+    transition: background-color 0.2s;
+    font-weight: 500;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#toggle-more-options-btn:hover {
+    background-color: #e0e0e0 !important;
+}
+
+#toggle-more-options-btn .material-icons {
+    margin-left: 5px;
+    font-size: 20px;
+}
+
+/* Scanner Mode Toggle Buttons */
+.scan-mode-toggle {
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-mode {
+    padding: 8px 20px;
+    border: 1px solid var(--border-color);
+    background: #f8f9fa;
+    color: #666;
+    cursor: pointer;
+    border-radius: 20px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-mode.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-share {
+    background: linear-gradient(135deg, var(--secondary-color) 30%, var(--primary-color) 70%);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    text-decoration: none;
+}
+
+.btn-share:hover {
+    background: white;
+    color: var(--primary-color);
+    box-shadow: 0 3px 9px rgba(148, 148, 148, 0.897);
+}
+
+/*  */
+
+/* --- OCR MODAL STYLES --- */
+#ocr-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 900px;
+    height: 600px;
+    background-color: white;
+    /* border: 1px solid #ccc; */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 5000;
+    /* High z-index */
+    display: flex;
+    flex-direction: column;
+    min-width: 600px;
+    min-height: 400px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#ocr-header {
+    padding: 12px 15px;
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    color: white;
+    cursor: move;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    user-select: none;
+}
+
+.window-controls span {
+    cursor: pointer;
+    margin-left: 10px;
+    opacity: 0.8;
+}
+
+.window-controls span:hover {
+    opacity: 1;
+}
+
+#ocr-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #f5f5f5;
+}
+
+/* Toolbar */
+.ocr-toolbar {
+    padding: 8px 15px;
+    background: white;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.ocr-toolbar button,
+.ocr-btn-upload {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    color: #444;
+    transition: all 0.2s;
+}
+
+.ocr-toolbar button:hover:not(:disabled),
+.ocr-btn-upload:hover {
+    background: #f0f0f0;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.ocr-toolbar button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.divider-v {
+    width: 1px;
+    height: 20px;
+    background: #ddd;
+    margin: 0 5px;
+}
+
+/* Progress Bar */
+#ocr-progress-container {
+    height: 4px;
+    background: #e0e0e0;
+    width: 100%;
+    position: relative;
+    display: none;
+    /* Hidden by default */
+}
+
+#ocr-progress-bar {
+    height: 100%;
+    background: #27ae60;
+    width: 0%;
+    transition: width 0.3s;
+}
+
+#ocr-status-text {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    font-size: 11px;
+    color: #666;
+}
+
+/* Workspace Split View */
+.ocr-workspace {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+/* Left: Workbench */
+#ocr-workbench {
+    flex: 1.5;
+    /* 60% width */
+    background: #333;
+    /* Dark background for contrast */
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 2px solid white;
+}
+
+#ocr-empty-state {
+    text-align: center;
+    color: #888;
+}
+
+#ocr-canvas-container {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+#ocr-source-image {
+    max-width: 100%;
+    display: block;
+}
+
+/* Right: Results */
+#ocr-results-panel {
+    flex: 1;
+    /* 40% width */
+    background: white;
+    border-left: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    min-width: 250px;
+}
+
+/* Smart Chips */
+#ocr-smart-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+    /* min-height: 40px; */
+}
+
+.smart-chip {
+    background: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #bbdefb;
+    border-radius: 16px;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+
+.smart-chip:hover {
+    background: #2196f3;
+    color: white;
+    border-color: #2196f3;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #666;
+}
+
+#ocr-result {
+    flex: 1;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    resize: none;
+    font-family: monospace;
+    font-size: 13px;
+    background: #fafafa;
+}
+
+/* Magic Fill Context Menu */
+.context-menu {
+    display: none;
+    position: absolute;
+    z-index: 6000;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    min-width: 150px;
+}
+
+.menu-header {
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #888;
+    background: #f9f9f9;
+    border-bottom: 1px solid #eee;
+}
+
+.menu-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #333;
+}
+
+.menu-item:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.menu-divider {
+    height: 1px;
+    background: #eee;
+    margin: 2px 0;
+}
+
+/* Resize Handles (Invisible but functional) */
+.resize-handle {
+    position: absolute;
+    background: transparent;
+}
+
+.n-resize {
+    top: -5px;
+    left: 0;
+    width: 100%;
+    height: 10px;
+    cursor: n-resize;
+}
+
+.e-resize {
+    top: 0;
+    right: -5px;
+    width: 10px;
+    height: 100%;
+    cursor: e-resize;
+}
+
+.s-resize {
+    bottom: -5px;
+    left: 0;
+    width: 100%;
+    height: 10px;
+    cursor: s-resize;
+}
+
+.w-resize {
+    top: 0;
+    left: -5px;
+    width: 10px;
+    height: 100%;
+    cursor: w-resize;
+}
+
+.ne-resize {
+    top: -5px;
+    right: -5px;
+    width: 15px;
+    height: 15px;
+    cursor: ne-resize;
+    z-index: 10;
+}
+
+.se-resize {
+    bottom: -5px;
+    right: -5px;
+    width: 15px;
+    height: 15px;
+    cursor: se-resize;
+    z-index: 10;
+}
+
+.sw-resize {
+    bottom: -5px;
+    left: -5px;
+    width: 15px;
+    height: 15px;
+    cursor: sw-resize;
+    z-index: 10;
+}
+
+.nw-resize {
+    top: -5px;
+    left: -5px;
+    width: 15px;
+    height: 15px;
+    cursor: nw-resize;
+    z-index: 10;
+}
+
+/* --- MAGIC FILL MENU STYLES --- */
+.magic-menu {
+    position: fixed;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    padding: 5px 0;
+    min-width: 180px;
+    z-index: 10000;
+    /* Highest Z-index */
+    font-size: 13px;
+    color: #333;
+}
+
+.magic-item {
+    padding: 8px 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    transition: background 0.1s;
+}
+
+.magic-item:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.magic-item i {
+    font-size: 16px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.magic-item .arrow {
+    font-size: 16px;
+}
+
+.magic-divider {
+    height: 1px;
+    background-color: #eee;
+    margin: 4px 0;
+}
+
+/* Submenu Logic */
+.magic-sub-menu {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: -5px;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    padding: 5px 0;
+    min-width: 160px;
+    color: #333;
+}
+
+/* Show Submenu on Hover */
+.magic-item:hover>.magic-sub-menu {
+    display: block;
+}
+
+/* Fix submenu text color on parent hover */
+.magic-item:hover>.magic-sub-menu .magic-item {
+    color: #333;
+    /* Reset color for submenu items */
+    background-color: white;
+}
+
+.magic-item:hover>.magic-sub-menu .magic-item:hover {
+    color: white;
+    /* Active submenu item */
+    background-color: var(--secondary-color);
+}
+
+/* Add this to your Context Menu section */
+.magic-sub-menu.flip-left {
+    left: auto;
+    right: 100%;
+    box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.2);
+    /* Shadow direction adjustment */
+}
+
+/* Vertical Flip for Sub-menus */
+.magic-sub-menu.flip-up {
+    top: auto;
+    bottom: 0;
+    box-shadow: 2px -2px 10px rgba(0, 0, 0, 0.2);
+    /* Shadow upwards */
+}
+
+/* --- HORIZONTAL SCROLL UPDATES --- */
+
+/* 1. OCR Toolbar */
+.ocr-toolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 15px;
+    background: white;
+    border-bottom: 1px solid #ddd;
+
+    /* Horizontal Scroll Logic */
+    flex-wrap: nowrap !important;
+    /* Prevent buttons from dropping down */
+    overflow-x: auto;
+    /* Show scrollbar if needed */
+    white-space: nowrap;
+    /* Keep text on one line */
+
+    /* Scrollbar Styling */
+    scrollbar-width: thin;
+    /* Firefox */
+    scrollbar-color: #ccc transparent;
+}
+
+/* 2. Smart Chips Container */
+#ocr-smart-chips {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 5px;
+    /* min-height: 40px; */
+    align-items: center;
+
+    /* Horizontal Scroll Logic */
+    flex-wrap: nowrap !important;
+    /* Force single line */
+    overflow-x: auto;
+    /* Enable scroll */
+    padding-bottom: 5px;
+    /* Space for scrollbar */
+
+    /* Scrollbar Styling */
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+}
+
+/* 3. Chip Styling Fix */
+.smart-chip {
+    flex-shrink: 0;
+    /* Prevent chips from being squished */
+    white-space: nowrap;
+    /* Keep chip text on one line */
+    /* Keep existing styling below */
+    background: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #bbdefb;
+    border-radius: 16px;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+
+/* Custom Scrollbar Webkit (Chrome/Safari/Edge) */
+.ocr-toolbar::-webkit-scrollbar,
+#ocr-smart-chips::-webkit-scrollbar {
+    height: 6px;
+}
+
+.ocr-toolbar::-webkit-scrollbar-thumb,
+#ocr-smart-chips::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 3px;
+}
+
+.ocr-toolbar::-webkit-scrollbar-track,
+#ocr-smart-chips::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Filter Menu (Dropdown) */
+/* Filter Menu (Dropdown) */
+.filter-menu {
+    display: none;
+    position: fixed;
+    /* Changed from absolute */
+    width: 220px;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    padding: 12px;
+    z-index: 10000;
+    /* Very high Z-index */
+}
+
+.filter-group {
+    margin-bottom: 12px;
+}
+
+.filter-group label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 4px;
+}
+
+.filter-group input[type=range] {
+    width: 100%;
+    cursor: pointer;
+}
+
+/* Tiny buttons for the menu */
+.btn-tiny {
+    padding: 4px 8px;
+    font-size: 11px;
+    border: 1px solid #ddd;
+    background: #f9f9f9;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.btn-tiny:hover {
+    background: #eee;
+}
+
+.btn-tiny.primary {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+
+/* Vendor Mode Styles */
+.vendor-mode-btn {
+    transition: all 0.3s;
+}
+
+#vendor-details-container {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+}
+
+#vendor-details-container input {
+    border: none;
+    border-bottom: 1px solid #ddd;
+    padding: 5px;
+    width: 90%;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+#vendor-details-container input:focus {
+    border-bottom-color: var(--primary-color);
+}
+
+/* File Viewer */
+#file-viewer-modal .modal-body {
+    background-color: #2c3e50;
+    /* Dark background for file viewing */
+}
+
+/* DASHBOARD START */
+/* DASHBOARD STYLES */
+.dashboard-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f4f6f9;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.dashboard-header {
+    background: white;
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-header h2 {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.dashboard-header p {
+    margin: 5px 0 0;
+    color: #7f8c8d;
+    font-size: 0.9em;
+}
+
+.header-right {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.icon-btn-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: #7f8c8d;
+    transition: color 0.3s;
+}
+
+.icon-btn-close:hover {
+    color: #e74c3c;
+}
+
+.dashboard-content {
+    padding: 25px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* KPI Cards */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.kpi-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border-left: 5px solid transparent;
+    transition: transform 0.2s;
+}
+
+.kpi-card:hover {
+    transform: translateY(-3px);
+}
+
+.kpi-card.green {
+    border-left-color: #2ecc71;
+}
+
+.kpi-card.blue {
+    border-left-color: #3498db;
+}
+
+.kpi-card.red {
+    border-left-color: #e74c3c;
+}
+
+.kpi-card.orange {
+    border-left-color: #f39c12;
+}
+
+.kpi-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.kpi-card.green .kpi-icon {
+    background: #eafaf1;
+    color: #2ecc71;
+}
+
+.kpi-card.blue .kpi-icon {
+    background: #e8f4fd;
+    color: #3498db;
+}
+
+.kpi-card.red .kpi-icon {
+    background: #fdedec;
+    color: #e74c3c;
+}
+
+.kpi-card.orange .kpi-icon {
+    background: #fef5e7;
+    color: #f39c12;
+}
+
+.kpi-info h3 {
+    margin: 5px 0;
+    font-size: 1.5em;
+}
+
+.kpi-label {
+    color: #7f8c8d;
+    font-size: 0.9em;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.kpi-trend {
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+/* Main Grid */
+.main-analytics-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+}
+
+/* Charts */
+.chart-section {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    height: 450px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-container {
+    flex: 1;
+    position: relative;
+    width: 100%;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-header h4 {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.chart-toggles .chart-btn {
+    border: none;
+    background: #f8f9fa;
+    padding: 6px 15px;
+    margin-left: 5px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #7f8c8d;
+    transition: all 0.2s;
+}
+
+.chart-toggles .chart-btn.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Lists */
+.lists-section {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.action-list-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-height: 215px;
+    /* Half of chart height roughly */
+}
+
+.list-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.list-header h4 {
+    margin: 0;
+    font-size: 1em;
+}
+
+.scrollable-list {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f9f9f9;
+    font-size: 0.9em;
+}
+
+.list-item:last-child {
+    border-bottom: none;
+}
+
+.stock-badge {
+    background: #fdedec;
+    color: #e74c3c;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.txn-amount.in {
+    color: #2ecc71;
+    font-weight: bold;
+}
+
+.txn-amount.out {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .main-analytics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .lists-section {
+        flex-direction: row;
+    }
+}
+
+@media (max-width: 768px) {
+    .lists-section {
+        flex-direction: column;
+    }
+
+    .kpi-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 486px) {
+
+    .customer-details input {
+        width: 85%;
+        margin-left: 0;
+    }
+
+    #custAddr {
+        width: 70%;
+    }
+
+    #custPhone {
+        width: 62%;
+    }
+
+    #billDate {
+        width: 82%;
+    }
+
+    #billNo{
+        width: 66%;
+    }
+
+
+
+
+}
+
+
+
+
+/*  DASHBOARD END */
+
+/* File Viewer Zoom & Pan Styles */
+#file-viewer-modal .modal-body {
+    overflow: hidden;
+    /* Hide parts of image that go outside */
+    cursor: default;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #2c3e50;
+}
+
+#file-viewer-img {
+    cursor: move;
+    /* As requested */
+    transform-origin: center center;
+    /* Zoom from center */
+    transition: transform 0.05s linear;
+    /* Smooth updates */
+    max-width: 100%;
+    max-height: 100%;
+    user-select: none;
+    /* Prevent highlighting while dragging */
+    -webkit-user-drag: none;
+    /* Prevent browser default drag */
+}
+
+/* --- EXPENSE MANAGEMENT STYLES --- */
+
+/* Summary Grid */
+.expense-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.expense-card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid transparent;
+}
+
+.expense-card.total {
+    border-left-color: #3498db;
+}
+
+.expense-card.today {
+    border-left-color: #2ecc71;
+}
+
+.expense-card.category {
+    border-left-color: #9b59b6;
+}
+
+.expense-card.last {
+    border-left-color: #e67e22;
+}
+
+.expense-card .card-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+}
+
+.expense-card .card-data h3 {
+    margin: 5px 0 0 0;
+    font-size: 1.4em;
+    color: #333;
+}
+
+.expense-card .card-data small {
+    color: #777;
+    font-weight: 500;
+}
+
+/* Dashboard Split Layout */
+.expense-dashboard-split {
+    display: flex;
+    gap: 20px;
+    height: calc(100% - 100px);
+    /* Adjust based on summary height */
+}
+
+.expense-main-panel {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.expense-side-panel {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    min-width: 280px;
+}
+
+/* --- Updated Filter Bar Styles --- */
+.expense-filter-bar {
+    display: flex;
+    flex-direction: column;
+    /* Stack rows vertically */
+    gap: 10px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.filter-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.expense-filter-bar .filter-group {
+    /* Flex logic handled inline in HTML for specific proportions */
+    min-width: 0;
+    /* Prevents overflow issues */
+}
+
+.expense-filter-bar select,
+.expense-filter-bar input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+    height: 36px;
+    /* Ensure consistent height */
+}
+
+/* Specific styling for the Date Group container */
+.date-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff;
+    /* Optional: differentiate date area */
+}
+
+.date-group span {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+}
+
+/* Table Wrapper */
+.expense-table-wrapper {
+    flex: 1;
+    overflow-y: auto;
+}
+
+#expense-table th {
+    background: #34495e;
+    color: white;
+    position: sticky;
+    top: 0;
+}
+
+#expense-table td {
+    font-size: 13px;
+    padding: 8px 10px;
+}
+
+/* Category Bar Chart (CSS Based) */
+.chart-container-div {
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 10px;
+    padding-right: 5px;
+}
+
+.chart-bar-row {
+    margin-bottom: 12px;
+}
+
+.chart-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 4px;
+    color: #555;
+    font-weight: 500;
+}
+
+.chart-bar-bg {
+    height: 12px;
+    background: #f0f0f0;
+    border-radius: 6px;
+    overflow: hidden;
+    width: 100%;
+}
+
+.chart-bar-fill {
+    height: 100%;
+    background: var(--primary-color);
+    border-radius: 6px;
+    transition: width 0.5s ease;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .expense-dashboard-split {
+        flex-direction: column-reverse;
+    }
+
+    .expense-side-panel {
+        min-height: 300px;
+    }
+
+    .expense-summary-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* --- FIX: File Viewer Z-Index --- */
+#file-viewer-modal {
+    z-index: 3000 !important;
+    /* Higher than expense modal (usually 1000-2000) */
+}
+
+/* Ensure the file viewer image is not obscured */
+#file-viewer-modal .modal-content {
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+    /* Stronger shadow for depth */
+}
+
+
+/* =========================================
+   FIXED TOOLBAR STYLES (No Scrollbars)
+   ========================================= */
+
+#tools {
+    list-style: none;
+    margin: 0 auto 20px auto;
+    padding: 0.5rem;
+    background-color: #05043e;
+    /* Dark Blue Theme */
+    display: flex;
+    flex-direction: row;
+    /* Horizontal Layout */
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 10px 0 rgba(5, 4, 62, 0.25);
+    width: fit-content;
+    max-width: 100%;
+
+    /* FIX: Removed overflow to prevent scrollbars and clipping */
+    /* overflow-x: auto; <--- REMOVED */
+
+    flex-wrap: wrap;
+    /* Wrap items if screen is too small */
+    position: relative;
+    z-index: 100;
+    /* Ensure toolbar sits on top */
+}
+
+/* Button Styling (Icon Only by Default) */
+#tools button {
+    color: #FFF;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 8px;
+    position: relative;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    padding: 0;
+    font-weight: normal;
+}
+
+#tools button:hover,
+#tools button:focus {
+    background-color: #30305a;
+    /* Lighter blue on hover */
+    outline: 0;
+}
+
+#tools button .material-icons {
+    font-size: 1.375rem;
+    margin-right: 0;
+    color: #FFF;
+}
+
+/* Tooltip (The Text Span) */
+#tools button span:not(.material-icons) {
+    position: absolute;
+    background-color: #30305a;
+    color: #fff;
+    white-space: nowrap;
+    padding: .5rem 1rem;
+    border-radius: 6px;
+
+    /* Position below the icon */
+    top: 100%;
+    margin-top: 12px;
+    /* Small gap for the arrow */
+    left: 50%;
+
+    /* Initial Animation State */
+    transform: translateX(-50%) scale(0);
+    transform-origin: top center;
+    opacity: 0;
+    transition: .15s ease;
+
+    /* High Z-index to float over everything */
+    z-index: 9999;
+    pointer-events: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    display: block;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    /* Shadow for pop-out effect */
+}
+
+/* Tooltip Arrow (Little Triangle) */
+#tools button span:not(.material-icons)::before {
+    content: "";
+    display: block;
+    width: 12px;
+    height: 12px;
+    position: absolute;
+    background-color: #30305a;
+    left: 50%;
+    top: -5px;
+    /* Position slightly above the tooltip */
+    /* Rotate square to make a triangle */
+    transform: translateX(-50%) rotate(45deg);
+    border-radius: 2px;
+}
+
+/* Show Tooltip on Hover/Focus */
+/* Show Tooltip on Hover ONLY (Removed Focus) */
+#tools button:hover span:not(.material-icons) {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+}
+
+/* GST Mode Compatibility */
+body.gst-mode #tools button {
+    background-color: transparent;
+    color: #FFF;
+    border: none;
+}
+
+body.gst-mode #tools button:hover {
+    background-color: #30305a;
+    color: #FFF;
+}
+
+body.gst-mode #tools button .material-icons {
+    color: #FFF;
+}
+
+body.gst-mode #tools {
+    border: none;
+}
+
+/* =========================================
+   NEW 2-LEVEL SIDEBAR STYLES
+   ========================================= */
+
+/* Main Sidebar Container (Hidden by default via transform) */
+#app-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    display: flex;
+    z-index: 2000;
+    transition: transform 0.3s ease;
+    transform: translateX(-100%);
+    /* Start hidden off-screen */
+}
+
+#app-sidebar.open {
+    transform: translateX(0);
+}
+
+/* Level 1: Categories Strip */
+#sidebar-categories {
+    width: 60px;
+    background-color: #060527;
+    /* Dark Blue */
+    display: flex;
+
+
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+    gap: 10px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    z-index: 2002;
+}
+
+/* Category Buttons */
+.sidebar-cat-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.sidebar-cat-btn:hover,
+.sidebar-cat-btn.active {
+    background-color: #30305a;
+    color: #fff;
+}
+
+.sidebar-cat-btn .material-icons {
+    font-size: 24px;
+}
+
+/* Tooltip for Categories (Right Side) */
+.sidebar-tooltip {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%) translateX(10px) scale(0);
+    background-color: #30305a;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: 0.2s;
+    pointer-events: none;
+    margin-left: 5px;
+    z-index: 2005;
+}
+
+/* Tooltip Arrow */
+.sidebar-tooltip::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+    width: 8px;
+    height: 8px;
+    background-color: #30305a;
+}
+
+.sidebar-cat-btn:hover .sidebar-tooltip {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0) scale(1);
+}
+
+/* Level 2: Sub-menus Container */
+#sidebar-submenus {
+    width: 0;
+    background-color: #f8f9fa;
+    /* Light Gray */
+    overflow: hidden;
+    transition: width 0.3s ease;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 2001;
+}
+
+#sidebar-submenus.open {
+    width: 250px;
+    /* Expanded width */
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Sub-menu Groups */
+.sub-menu-group {
+    display: none;
+    /* Hidden by default */
+    flex-direction: column;
+    padding: 10px;
+    width: 250px;
+    /* Fixed width content */
+    height: 100%;
+    overflow-y: auto;
+}
+
+.sub-menu-group.active {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.sub-menu-header {
+    font-size: 14px;
+    font-weight: bold;
+    color: #05043e;
+    padding: 10px 15px;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Action Buttons (Level 2 Items) */
+.sidebar-action-btn {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border: none;
+    background: transparent;
+    color: #444;
+    cursor: pointer;
+    border-radius: 6px;
+    margin-bottom: 5px;
+    text-align: left;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.sidebar-action-btn:hover {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    padding-left: 20px;
+    /* Slide effect */
+}
+
+.sidebar-action-btn .material-icons {
+    font-size: 20px;
+    margin-right: 15px;
+    color: #666;
+    transition: color 0.2s;
+}
+
+.sidebar-action-btn:hover .material-icons {
+    color: #1565c0;
+}
+
+.sidebar-label {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* =========================================
+   RESPONSIVE: HIDE TOOLTIPS ON SMALL SCREENS
+   ========================================= */
+
+@media (max-width: 800px) {
+
+    /* Hide Horizontal Toolbar Tooltips */
+    #tools button span:not(.material-icons) {
+        display: none !important;
+    }
+
+    /* Hide Sidebar Category Tooltips */
+    .sidebar-tooltip {
+        display: none !important;
+    }
+}
+
+/* --- PERSONALIZATION MODAL STYLES (Windows 11 Style) --- */
+
+/* Preview Box */
+.preview-container {
+    width: 60%;
+    max-width: 400px;
+    height: 220px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #333;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    /* Deeper shadow */
+    margin: 0 auto;
+    flex-shrink: 0;
+    border: 4px solid #333;
+}
+
+.preview-screen {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: filter 0.2s ease;
+}
+
+/* Settings List */
+.settings-group {
+    background: rgba(255, 255, 255, 0.7);
+    /* Slightly more opaque */
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+
+.settings-item {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    gap: 20px;
+}
+
+.settings-item:last-child {
+    border-bottom: none;
+}
+
+.settings-item.hidden {
+    display: none !important;
+}
+
+/* Labels & Text */
+.item-label {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.item-label i {
+    font-size: 16px;
+    color: #5d5d5d;
+    width: 20px;
+    text-align: center;
+}
+
+.item-text h4 {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+    color: #202020;
+}
+
+.item-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+/* Controls */
+#pzn-bgTypeSelect,
+#pzn-fitSelect {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    min-width: 140px;
+    cursor: pointer;
+    outline: none;
+}
+
+/* Browse Button */
+.browse-btn {
+    padding: 6px 16px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    display: inline-block;
+    color: #202020;
+}
+
+.browse-btn:hover {
+    background: #f0f0f0;
+}
+
+/* Color Grid */
+.color-grid {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: 300px;
+}
+
+.color-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.1s;
+}
+
+.color-dot:hover {
+    transform: scale(1.1);
+}
+
+.color-dot.active {
+    border-color: #202020;
+}
+
+.custom-color-wrapper {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background: white;
+}
+
+.custom-color-wrapper input {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+}
+
+/* Sliders */
+.win-slider-container {
+    width: 200px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    background: transparent;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: #0067c0;
+    border: 4px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin-top: -7px;
+    cursor: pointer;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    background: #d1d1d1;
+    border-radius: 2px;
+}
+
+.slider-val {
+    font-size: 13px;
+    min-width: 45px;
+    text-align: right;
+    color: #5d5d5d;
+}
+
+/* --- WINDOWS 11 FOOTER & BUTTONS --- */
+.window-footer {
+    padding: 20px 32px;
+    background: rgba(243, 243, 243, 0.9);
+    /* Slight transparency */
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Base Button Style */
+.btn {
+    padding: 6px 24px;
+    /* Shorter height, wide width */
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    /* Medium weight */
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.1s ease;
+    height: 32px;
+    /* Standard Windows button height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Primary (Accent) Button */
+.btn-primary {
+    background-color: #0067c0;
+    color: white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+    background-color: #187bcd;
+}
+
+.btn-primary:active {
+    background-color: #005a9e;
+    opacity: 0.9;
+}
+
+/* Secondary (Standard) Button */
+.btn-secondary {
+    background-color: white;
+    border-color: #d1d1d1;
+    color: #202020;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-secondary:hover {
+    background-color: #f6f6f6;
+    border-color: #b1b1b1;
+}
+
+.btn-secondary:active {
+    background-color: #e5e5e5;
+}
+
+/* Danger (Reset) Button */
+.btn-danger {
+    color: #c42b1c;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.btn-danger:hover {
+    background-color: rgba(196, 43, 28, 0.05);
+}
+
+.btn-danger:active {
+    background-color: rgba(196, 43, 28, 0.1);
+}
+
+/* --- FINAL BACKGROUND VISIBILITY FIX --- */
+
+/* 1. Force the root html element to be transparent */
+html {
+    background-color: transparent !important;
+    min-height: 100%;
+}
+
+/* 2. Force body to be transparent so we see the layer behind it */
+body {
+    background-color: transparent !important;
+    background-image: none !important;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    /* Keep your original padding */
+}
+
+/* 3. The actual wallpaper layer */
+#app-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    /* Stays behind content */
+    background-color: #f9f9f9;
+    /* Default visible color */
+    pointer-events: none;
+    /* Lets clicks pass through */
+    transition: all 0.3s ease;
+}
+
+/* --- REGULAR BILL MODAL STYLES --- */
+.input-group-lock {
+    display: flex;
+    align-items: center;
+}
+
+.input-group-lock input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#reg-prefix-lock-btn {
+    height: 38px;
+    /* Match input height */
+    width: 40px;
+    border: 1px solid #ddd;
+    border-left: none;
+    background: #eee;
+    cursor: pointer;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#reg-prefix-lock-btn.unlocked {
+    background: #fff;
+    color: var(--primary-color);
+}
+
+.column-header {
+    font-size: 14px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.copy-icon {
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--primary-color);
+}
+
+.copy-icon:hover {
+    transform: scale(1.1);
+}
+
+/* Utility Margins */
+.mb-2 {
+    margin-bottom: 8px;
+    width: 100%;
+}
+
+.mt-2 {
+    margin-top: 8px;
+    width: 100%;
+}
+
+/* --- UTILITY CLASSES --- */
+.mb-2 {
+    margin-bottom: 8px;
+    display: block;
+    width: 100%;
+    /* Ensures input takes full width of column */
+    box-sizing: border-box;
+    /* Ensures padding doesn't break width */
+}
+
+.mt-2 {
+    margin-top: 8px;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* --- MODAL COLUMN INPUT STYLING --- */
+/* Styles specifically for the Bill To/Ship To inputs inside the modal */
+#reg-modal-advanced-section input[type="text"],
+#reg-modal-advanced-section textarea {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #fff;
+    transition: border-color 0.2s;
+}
+
+#reg-modal-advanced-section input[type="text"]:focus,
+#reg-modal-advanced-section textarea:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+/* Styling for the column containers */
+#reg-modal-advanced-section>div>div {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+}
+
+/* --- REGULAR BILL MODAL FORM STYLES --- */
+
+/* 1. Labels */
+.form-group-row label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+}
+
+/* 2. Standard Inputs & Selects */
+.form-group-row input[type="text"],
+.form-group-row select {
+    width: 100%;
+    height: 38px;
+    /* Fixed height for perfect alignment */
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #fff;
+    box-sizing: border-box;
+    /* Prevents padding from breaking layout */
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group-row input[type="text"]:focus,
+.form-group-row select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+    /* Subtle glow */
+}
+
+/* 3. Prefix Group (Input + Lock Button) */
+.input-group-lock {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* The Input side */
+.input-group-lock input {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-right: none !important;
+    /* Remove border between input and button */
+    flex: 1;
+    /* Take up all available space */
+}
+
+/* The Button side */
+#reg-prefix-lock-btn {
+    height: 38px;
+    /* Match input height exactly */
+    width: 42px;
+    border: 1px solid #ccc;
+    border-left: 1px solid #eee;
+    /* Subtle divider */
+    background: #f5f5f5;
+    cursor: pointer;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: #666;
+    padding: 0;
+}
+
+#reg-prefix-lock-btn:hover {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+/* When Unlocked (Active State) */
+#reg-prefix-lock-btn.unlocked {
+    background-color: #fff;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Disabled Input Styling */
+.form-group-row input:disabled {
+    background-color: #f9f9f9;
+    color: #888;
+    cursor: not-allowed;
+}
+
+/* 4. Save Button alignment */
+#reg-save-custom-btn {
+    height: 38px;
+    line-height: 1;
+    font-size: 13px;
+    padding: 0 15px;
+}
+
+/* --- CUSTOM TYPE PANEL STYLES --- */
+
+/* 1. Style the container inputs */
+#reg-custom-type-panel input[type="text"] {
+    flex: 1;
+    /* Make both inputs grow to fill space equally */
+    width: 100%;
+    height: 38px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #fff;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* 2. Focus state for interaction */
+#reg-custom-type-panel input[type="text"]:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+}
+
+/* 3. Panel Container adjustments (optional polish) */
+#reg-custom-type-panel {
+    border: 1px dashed #ccc;
+    /* Makes it look like a special "edit zone" */
+    background-color: #f8f9fa !important;
+    /* Slightly lighter gray */
+}

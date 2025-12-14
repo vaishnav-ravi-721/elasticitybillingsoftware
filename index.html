@@ -1,0 +1,3321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="./asuralogo2.png">
+    <title>Billig App</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-mode="manual">
+    <div id="app-background"></div>
+    <!-- Purchase Price Dialog -->
+    <div class="purchase-price-dialog" id="purchase-price-dialog">
+        <div class="purchase-price-dialog-content">
+            <div class="purchase-price-dialog-header">
+                <h3>Enter Purchase Prices</h3>
+                <span class="close-purchase-dialog" id="close-purchase-dialog">×</span>
+            </div>
+            <div class="purchase-price-dialog-body">
+                <p>Some items are missing purchase prices. Please enter them to calculate profit:</p>
+                <div id="purchase-price-items-list" class="purchase-price-items-list">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+            </div>
+            <div class="purchase-price-dialog-footer">
+                <button onclick="closePurchasePriceDialog()" class="btn-cancel">Cancel</button>
+                <button onclick="applyProfitCalculation()" class="btn-apply">Calculate Profit</button>
+            </div>
+        </div>
+    </div>
+    <!-- Payment & Credit Note Dialog -->
+    <div class="payment-dialog" id="payment-dialog">
+        <div class="payment-dialog-content">
+            <div class="payment-dialog-header">
+                <h3 id="payment-dialog-title">Payments - Customer Name</h3>
+                <button class="close-payment-dialog" id="close-payment-dialog">×</button>
+            </div>
+            <div class="payment-dialog-body">
+                <!-- Toggle between Payments and Credit Notes -->
+                <div class="payment-type-toggle">
+                    <button class="toggle-btn active" data-type="payment">Payments</button>
+                    <button class="toggle-btn" data-type="credit-note">Credit Notes</button>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="payment-controls">
+                    <div class="payment-search">
+                        <input type="text" id="payment-search"
+                            placeholder="Search payments by method, amount, date, or notes...">
+                    </div>
+                    <div class="payment-filters">
+                        <button class="filter-btn" id="sort-order-btn" data-order="desc">
+                            <i class="material-icons">arrow_downward</i>
+                        </button>
+                        <select class="filter-select" id="sort-by-select">
+                            <option value="date">Date</option>
+                            <option value="amount">Amount</option>
+                        </select>
+                        <select class="filter-select" id="statement-period">
+                            <option value="all">All</option>
+                            <option value="1month">1 Month</option>
+                            <option value="3months">3 Months</option>
+                            <option value="6months">6 Months</option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <!-- Add New Payment/Credit Note Form -->
+                <div class="add-payment-form">
+                    <h4>Add New <span id="form-type-label">Payment</span></h4>
+                    <div class="form-group">
+                        <label for="payment-date">Date:</label>
+                        <input type="text" id="payment-date" oninput="saveToLocalStorage()" />
+                        <!-- <input type="date" id="payment-date" value=""> -->
+                    </div>
+                    <div class="form-group">
+                        <label for="payment-method">Payment Method:</label>
+                        <select id="payment-method" onchange="handlePaymentMethodChange()">
+                            <option value="Cash">Cash</option>
+                            <option value="UPI">UPI</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="Cheque">Cheque</option>
+                            <option value="Card">Card</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <div id="custom-method-container" style="display: none; margin-top: 5px;">
+                            <input type="text" id="custom-payment-method" placeholder="Enter custom payment method">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="payment-amount">Amount (₹):</label>
+                        <input type="number" id="payment-amount" placeholder="Enter amount" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="payment-notes">Notes (Optional):</label>
+                        <textarea id="payment-notes" placeholder="Additional notes"></textarea>
+                    </div>
+                    <button class="action-btn" id="add-payment-btn">
+                        <i class="material-icons">add</i> Add <span id="add-btn-label">Payment</span>
+                    </button>
+                </div>
+
+                <!-- Payments/Credit Notes List -->
+                <div class="payments-list">
+                    <h4 class="somespace"><span id="list-type-label">Payment</span> History</h4>
+                    <table class="payments-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Method</th>
+                                <th>Amount (₹)</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payments-tbody">
+                            <!-- Dynamic content will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ledger Dialog -->
+    <div class="ledger-dialog" id="ledger-dialog">
+        <div class="ledger-dialog-content">
+            <div class="ledger-dialog-header">
+                <h3 id="ledger-dialog-title">Ledger - Customer Name</h3>
+                <button class="close-ledger-dialog" id="close-ledger-dialog">×</button>
+            </div>
+            <div class="ledger-dialog-body">
+                <!-- Date Range Selector -->
+                <div class="ledger-controls">
+                    <div class="period-selector">
+                        <label>
+                            <input type="checkbox" id="select-all-dates" checked> Select All
+                        </label>
+                        <div class="period-inputs" id="period-inputs" style="display: none;">
+                            <select id="period-select" onchange="handlePeriodChange()">
+                                <option value="1month">Last 1 Month</option>
+                                <option value="3months">Last 3 Months</option>
+                                <option value="6months">Last 6 Months</option>
+                                <option value="fromdate">From Date</option>
+                            </select>
+                            <input type="date" id="from-date-input" style="display: none;" onchange="loadLedgerData()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Single Ledger Table -->
+                <div class="ledger-table-container">
+                    <table class="ledger-table unified-ledger-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Particulars</th>
+                                <th>Debit Amount (INR)</th>
+                                <th>Credit Amount (INR)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledger-tbody">
+                            <!-- Data will be populated here -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="total-row highlight">
+                                <td colspan="2" class="right bold">Debit total</td>
+                                <td class="right bold" id="debit-total">₹0.00</td>
+                                <td class="right bold"></td>
+                            </tr>
+                            <tr class="total-row highlight">
+                                <td colspan="2" class="right bold">Credit total</td>
+                                <td class="right bold"></td>
+                                <td class="right bold" id="credit-total">₹0.00</td>
+                            </tr>
+                            <tr class="total-row highlight">
+                                <td colspan="2" class="right bold">Difference</td>
+                                <td class="right bold" id="difference-amount">₹0.00</td>
+                                <td class="right bold"></td>
+                            </tr>
+                            <tr class="closing-balance-row">
+                                <td id="closing-balance-date"></td>
+                                <td class="bold">Closing Balance</td>
+                                <td class="right bold" id="closing-balance-debit">₹0.00</td>
+                                <td class="right bold" id="closing-balance-credit">₹0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Tax Adjustment Modal -->
+    <div id="tax-adjustment-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Adjust Tax Rates</h3>
+                <span class="close" onclick="closeTaxAdjustmentModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="adjust-tax-percent">Adjust Tax % (Effective Tax to Apply):</label>
+                    <input type="number" id="adjust-tax-percent" min="0" max="100" step="0.01"
+                        placeholder="Enter effective tax %">
+                </div>
+                <div class="tax-info"
+                    style="font-size: 0.9em; color: #666; margin-top: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;">
+                    <p><strong>Customer GST:</strong> <span id="current-customer-gst">18</span>% (shown on bill)</p>
+                    <p><strong>Current Items:</strong> <span id="current-item-count">0</span> items will be adjusted</p>
+                    <p><strong>Note:</strong> This will update all item rates to achieve the effective tax rate while
+                        showing customer GST on bill.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeTaxAdjustmentModal()" class="btn-cancel">Cancel</button>
+                <button onclick="applyTaxAdjustment()" class="btn-apply">Apply Tax Adjustment</button>
+            </div>
+        </div>
+    </div>
+    <!-- Section Modal -->
+    <div id="section-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 id="section-modal-title">Create Section</h3>
+                <span class="close" onclick="closeSectionModal()">&times;</span>
+            </div>
+            <!-- Find the section-modal and replace the modal-body section with this: -->
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Section Name:</label>
+                    <input type="text" id="section-name" placeholder="Section Name">
+                </div>
+
+                <!-- Alignment and Font Weight in one row -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Alignment:</label>
+                        <select id="section-align">
+                            <option value="left">Left</option>
+                            <option value="center">Center</option>
+                            <option value="right">Right</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Font Weight:</label>
+                        <input type="number" id="section-font-weight" min="100" max="900" step="100" value="600">
+                    </div>
+                </div>
+
+                <!-- Background and Font Color in one row -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Background Color:</label>
+                        <input style="padding: 0;width: 60px;" type="color" id="section-bg-color" value="#ffe8b5">
+                    </div>
+                    <div class="form-group">
+                        <label>Font Color:</label>
+                        <input style="padding: 0;width: 60px;" type="color" id="section-font-color" value="#000000">
+                    </div>
+                </div>
+
+                <!-- Font Size and Text Transform in one row -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Font Size (px):</label>
+                        <input type="number" id="section-font-size" min="5" value="16">
+                    </div>
+                    <div class="form-group">
+                        <label>Text Transform:</label>
+                        <select id="section-text-transform">
+                            <option value="none">Normal</option>
+                            <option value="uppercase">Uppercase</option>
+                            <option value="capitalize">Capitalize</option>
+                            <option value="lowercase">Lowercase</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Padding Type:</label>
+                    <select id="section-padding-type" onchange="handlePaddingTypeChange()">
+                        <option value="">None</option>
+                        <option value="padding-left" selected>Left</option>
+                        <option value="padding-right">Right</option>
+                        <option value="padding-top">Top</option>
+                        <option value="padding-bottom">Bottom</option>
+                        <option value="padding-block">Top-Bottom</option>
+                        <option value="padding-inline">Left-Right</option>
+                        <option value="top-left-bottom">Top-Left-Bottom</option>
+                        <option value="top-right-bottom">Top-Right-Bottom</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+
+                <!-- Single Padding Value (default) -->
+                <div class="form-group" id="single-padding-group">
+                    <label>Padding Value (px):</label>
+                    <input type="number" id="section-padding-value" min="0" value="75">
+                </div>
+
+                <!-- Custom Padding Inputs (hidden by default) -->
+                <div class="form-group" id="custom-padding-group" style="display: none;">
+                    <label>Custom Padding (px):</label>
+                    <div class="form-row">
+                        <input type="number" id="section-padding-left" placeholder="Left" min="0">
+                        <input type="number" id="section-padding-right" placeholder="Right" min="0">
+                        <input type="number" id="section-padding-top" placeholder="Top" min="0">
+                        <input type="number" id="section-padding-bottom" placeholder="Bottom" min="0">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 600;">
+                        <input type="checkbox" id="section-show-total" style="width: auto;">
+                        Show Section Total
+                    </label>
+                </div>
+            </div>
+
+            <!-- Update modal-footer to include reset button: -->
+            <div class="modal-footer">
+                <button onclick="resetSectionModal()" class="btn-clear">Reset to Default</button>
+                <button onclick="closeSectionModal()" class="btn-cancel">Cancel</button>
+                <button onclick="saveSection()" class="btn-apply" id="save-section-btn">Add Section</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GST Mode Modal -->
+    <div id="gst-mode-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>GST Mode Settings</h3>
+                <span class="close" onclick="closeGSTModeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Switch to GST mode for GST-compliant invoicing with tax calculations?</p>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="enable-gst-mode">
+                        Enable GST Mode
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeGSTModeModal()" class="btn-cancel">Cancel</button>
+                <button onclick="toggleGSTMode()" class="btn-apply">Switch Mode</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Company Info Modal -->
+    <div id="company-info-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Company Information</h3>
+                <span class="close" onclick="closeCompanyInfoModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="company-name">Company Name:</label>
+                    <input type="text" id="company-name" placeholder="Your Company Name">
+                </div>
+
+                <div class="form-group">
+                    <label for="company-address">Address:</label>
+                    <textarea id="company-address" placeholder="Your Address"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="company-gst">GSTIN/UIN:</label>
+                    <input type="text" id="company-gst" placeholder="Your 15-digit GSTIN">
+                </div>
+
+                <div class="form-group">
+                    <label for="company-mobile">Mobile No:</label>
+                    <input type="text" id="company-mobile" placeholder="+91 1234567890">
+                </div>
+
+                <div class="form-group">
+                    <label for="company-email">Email:</label>
+                    <input type="email" id="company-email" placeholder="abcd@gmail.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="company-state">State Name:</label>
+                    <input type="text" id="company-state" value="Maharashtra">
+                </div>
+
+                <div class="form-group">
+                    <label for="company-code">State Code:</label>
+                    <input type="text" id="company-code" value="27">
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h3>Banking Details</h3>
+                <div class="form-group">
+                    <label for="account-number">A/C No:</label>
+                    <input type="text" id="account-number" placeholder="Account Number">
+                </div>
+                <div class="form-group">
+                    <label for="ifsc-code">IFSC Code:</label>
+                    <input type="text" id="ifsc-code" placeholder="IFSC Code">
+                </div>
+                <div class="form-group">
+                    <label for="branch">Branch:</label>
+                    <input type="text" id="branch" placeholder="Branch Name">
+                </div>
+                <div class="form-group">
+                    <label for="bank-name">Bank Name:</label>
+                    <input type="text" id="bank-name" placeholder="Bank Name">
+                </div>
+                <div class="form-group">
+                    <label for="account-holder">Account Holder Name:</label>
+                    <input type="text" id="account-holder" placeholder="Account Holder Name">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeCompanyInfoModal()" class="btn-cancel">Cancel</button>
+                <button onclick="saveCompanyInfo()" class="btn-apply">Save Company Info</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Details Modal -->
+    <div id="customer-details-modal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3>Enter Bill Details</h3>
+                <span class="close" onclick="closeCustomerDetailsModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="invoice-no">Invoice No:</label>
+                    <input type="text" id="invoice-no" placeholder="001">
+                </div>
+
+                <div class="form-group">
+                    <label for="invoice-date">Date:</label>
+                    <input type="text" id="invoice-date" placeholder="DD-MM-YYYY">
+
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h3>Customer Details</h3>
+                <div class="customer-type-selector">
+                    <label for="customer-type">Select Customer Type:</label>
+                    <select id="customer-type" name="customer-type" onchange="handleCustomerTypeChange()">
+                        <option value="bill-to" selected>Bill To</option>
+                        <option value="both">Bill To & Ship To</option>
+                    </select>
+                </div>
+
+                <div class="bill-to-section">
+                    <h4>Bill To</h4>
+                    <div class="form-group">
+                        <label for="consignee-name">Name:</label>
+                        <input type="text" id="consignee-name" placeholder="Start typing customer name or GSTIN..."
+                            oninput="handleCustomerSearch('consignee')">
+                        <div class="customer-suggestions" id="consignee-suggestions" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="consignee-address">Address:</label>
+                        <textarea id="consignee-address" placeholder="Customer Address"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="consignee-gst">GSTIN/UIN:</label>
+                        <input type="text" id="consignee-gst" placeholder="Customer 15-digit GSTIN">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="consignee-state">State Name:</label>
+                        <input type="text" id="consignee-state" value="Maharashtra">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="consignee-code">State Code:</label>
+                        <input type="text" id="consignee-code" value="27">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="consignee-contact">Contact No:</label>
+                        <input type="text" id="consignee-contact" placeholder="Contact Number">
+                    </div>
+                </div>
+
+                <div class="ship-to-section" id="ship-to-section" style="display: none;">
+                    <h4>Ship To <span class="material-icons" onclick="copyBillToShipTo()"
+                            title="Copy details from Bill To"
+                            style="font-size: 18px; cursor: pointer; vertical-align: middle; margin-left: 8px; color: var(--primary-color);">content_copy</span>
+                    </h4>
+                    <div class="form-group">
+                        <label for="buyer-name">Name:</label>
+                        <input type="text" id="buyer-name" placeholder="Customer Name"
+                            oninput="handleCustomerSearch('buyer')">
+                        <div class="customer-suggestions" id="buyer-suggestions" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="buyer-address">Address:</label>
+                        <textarea id="buyer-address" placeholder="Customer Address"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="buyer-gst">GSTIN/UIN:</label>
+                        <input type="text" id="buyer-gst" placeholder="Customer 15-digit GSTIN">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="buyer-state">State Name:</label>
+                        <input type="text" id="buyer-state" value="Maharashtra">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="buyer-code">State Code:</label>
+                        <input type="text" id="buyer-code" value="27">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="buyer-contact">Contact No:</label>
+                        <input type="text" id="buyer-contact" placeholder="Contact Number">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="place-of-supply">Place Of Supply:</label>
+                        <input type="text" id="place-of-supply" value="Maharashtra">
+                    </div>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h3>Tax Settings</h3>
+                <div class="form-group">
+                    <label for="transaction_type">Select transaction type:</label>
+                    <div class="gst-input-group">
+                        <select id="transaction_type" name="transaction_type">
+                            <option value="intrastate">Intrastate (CGST & SGST)</option>
+                            <option value="interstate">Interstate (IGST)</option>
+                        </select>
+                        <input type="number" id="gst-percent-input" placeholder="GST %" value="18" step="0.01">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="clearCustomerInputs()" class="btn-clear">Clear All</button>
+                <button onclick="closeCustomerDetailsModal()" class="btn-cancel">Cancel</button>
+                <button onclick="saveCustomerDetails()" class="btn-apply">Save Customer Details</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Discount Modal -->
+    <div id="discount-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Discount Settings</h3>
+                <span class="close" onclick="closeDiscountModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="tax-input-group">
+                    <label for="discount-type-select">Discount Type:</label>
+                    <select id="discount-type-select" onchange="handleDiscountTypeChange()">
+                        <option value="none">No Discount</option>
+                        <option value="percent">Discount Percentage</option>
+                        <option value="amount">Discount Amount</option>
+                    </select>
+                </div>
+
+                <!-- Percent Input (hidden by default) -->
+                <div id="percent-input-group" class="tax-input-group" style="display: none;">
+                    <label for="discount-percent-input">Discount Percentage:</label>
+                    <input type="number" id="discount-percent-input" min="0" max="100" step="0.01" placeholder="0">
+                    <span>%</span>
+                </div>
+
+                <!-- Amount Input (hidden by default) -->
+                <div id="amount-input-group" class="tax-input-group" style="display: none;">
+                    <label for="discount-amount-input">Discount Amount:</label>
+                    <input type="number" id="discount-amount-input" min="0" step="0.01" placeholder="0">
+                    <span>₹</span>
+                </div>
+
+                <div class="discount-info"
+                    style="font-size: 0.9em; color: #666; margin-top: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;">
+                    <strong>Current Subtotal:</strong> ₹<span id="current-subtotal-display">0.00</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeDiscountModal()" class="btn-cancel">Cancel</button>
+                <button onclick="applyDiscountSettings()" class="btn-apply">Apply Discount</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GST Modal -->
+    <div id="gst-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>GST Settings</h3>
+                <span class="close" onclick="closeGSTModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="tax-input-group">
+                    <label for="gst-input">GST Percentage:</label>
+                    <input type="number" id="gst-input" min="0" max="100" step="0.01" placeholder="0">
+                    <span>%</span>
+                </div>
+                <div class="tax-input-group">
+                    <label for="gstin-input">GSTIN Number:</label>
+                    <input type="text" id="gstin-input" placeholder="Enter GSTIN">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeGSTModal()" class="btn-cancel">Cancel</button>
+                <button onclick="applyGSTSettings()" class="btn-apply">Apply GST</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Items Modal -->
+    <div id="manage-items-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Manage Items</h3>
+                <span class="close" onclick="closeManageItemsModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="search-add-bar">
+                    <input type="text" id="item-search" placeholder="Search items..." oninput="searchItems()">
+                    <button onclick="openAddItemModal()" class="btn-apply">Add New Item</button>
+                </div>
+                <div id="items-list" class="items-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Item Modal -->
+    <div id="add-item-modal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h3 id="add-item-modal-title">Add New Item</h3>
+                <span class="close" onclick="closeAddItemModal()">×</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Item Name:</label>
+                    <input type="text" id="saved-item-name" placeholder="Enter item name">
+                </div>
+
+                <div class="form-row" style="display: flex; gap: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Purchase Rate:</label>
+                        <input type="number" id="saved-purchase-rate" placeholder="Enter purchase rate" step="0.01"
+                            min="0">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Stock Quantity:</label>
+                        <input type="number" id="saved-stock-quantity" placeholder="Enter stock quantity" step="1"
+                            min="0" value="0">
+                    </div>
+                </div>
+
+                <div class="form-row" style="display: flex; gap: 15px;">
+                    <div class="form-group" style="flex: 2;">
+                        <label>Sale Price:</label>
+                        <input type="number" id="saved-sale-price" placeholder="Enter sale price" step="0.01" min="0">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Tax Type:</label>
+                        <select id="saved-sale-tax-type">
+                            <option value="exclusive" selected>Exclusive</option>
+                            <option value="inclusive">Inclusive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row" style="display: flex; gap: 15px;">
+                    <div class="form-group" style="flex: 2;">
+                        <label>MRP:</label>
+                        <input type="number" id="saved-mrp" placeholder="Enter MRP" step="0.01" min="0">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Tax Type:</label>
+                        <select id="saved-mrp-tax-type">
+                            <option value="exclusive" selected>Exclusive</option>
+                            <option value="inclusive">Inclusive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row" style="display: flex; gap: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Default Quantity:</label>
+                        <input type="number" id="saved-default-quantity" placeholder="Enter default quantity"
+                            step="0.01" min="0" value="1">
+                    </div>
+                    <div class="form-group" style="flex: 1; position: relative;">
+                        <label>Default Unit:</label>
+                        <input type="text" id="saved-select-unit" placeholder="Enter default unit" autocomplete="off"
+                            oninput="handleSavedUnitSearch()">
+                        <div class="item-suggestions" id="saved-unit-suggestions" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <div class="form-row" style="display: flex; gap: 15px;">
+                    <div class="form-group" style="flex: 1; position: relative;">
+                        <label>Category:</label>
+                        <input type="text" id="saved-category" placeholder="Enter category" autocomplete="off"
+                            oninput="handleSavedCategorySearch()">
+                        <div class="item-suggestions" id="saved-category-suggestions" style="display: none;"></div>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Minimum Stock:</label>
+                        <input type="number" id="saved-min-stock" placeholder="Min Alert Qty" step="1" min="0"
+                            value="0">
+                    </div>
+                </div>
+
+                <div class="form-row" style="display: flex; gap: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Brand Name:</label>
+                        <input type="text" id="saved-brand-name" placeholder="Enter brand name">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Vendor Name:</label>
+                        <input type="text" id="saved-vendor-name" placeholder="Enter vendor name">
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin: 10px 0 15px 0;">
+                    <button type="button" onclick="toggleMoreOptions()" id="toggle-more-options-btn" class="btn-clear"
+                        style="margin: 0; width: 100%; display: flex; justify-content: center; align-items: center; background: #f0f0f0; color: #555; border: 1px solid #ddd;">
+                        More Options <span class="material-icons">keyboard_arrow_down</span>
+                    </button>
+                </div>
+
+                <div id="more-options-container" style="display: none;">
+                    <div class="form-row" style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Discount Type:</label>
+                            <select id="saved-discount-type">
+                                <option value="none">Select Discount</option>
+                                <option value="percent_per_unit">Discount % / unit</option>
+                                <option value="amt_per_unit">Discount amt / unit</option>
+                                <option value="percent_on_amount">Discount % on amount</option>
+                                <option value="amt_on_amount">Discount amt on amount</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Discount Value:</label>
+                            <input type="number" id="saved-discount-value" placeholder="Enter discount value"
+                                step="0.01" min="0">
+                        </div>
+                    </div>
+
+                    <div class="form-row" style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Dimension Type:</label>
+                            <select id="saved-dimension-type" onchange="handleSavedDimensionTypeChange()">
+                                <option value="none">Select Dimension</option>
+                                <option value="length">Length</option>
+                                <option value="widthXheight">Width X Height</option>
+                                <option value="widthXheightXdepth">Width X Height X Depth</option>
+                                <option value="dozen">Dozen (n/12)</option>
+                                <option value="lengthXwidthXheight">Length X Width X Height</option>
+                                <option value="widthXdepth">Width X Depth</option>
+                                <option value="lengthXheightXdepth">Length X Height X Depth</option>
+                                <option value="lengthXdepth">Length X Depth</option>
+                                <option value="lengthXheight">Length X Height</option>
+                                <option value="lengthXwidth">Length X Width</option>
+                                <option value="lengthXwidthXdepth">Length X Width X Depth</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="flex: 1; display: none;" id="saved-measurement-unit-wrapper">
+                            <label>Measurement Unit:</label>
+                            <select id="saved-measurement-unit" onchange="handleSavedMeasurementUnitChange()">
+                                <option value="ft">ft</option>
+                                <option value="inch">inch</option>
+                                <option value="mtr">mtr</option>
+                                <option value="cm">cm</option>
+                                <option value="mm">mm</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="saved-dimension-inputs" style="display: none;">
+                        <label>Dimension Values:</label>
+                        <div class="dimension-inputs-group">
+                            <div class="dimension-input-with-toggle">
+                                <input type="checkbox" id="saved-dimension1-toggle" class="dimension-toggle" checked
+                                    onchange="updateSavedDimensionCalculation()">
+                                <input type="number" id="saved-dimension1" placeholder="Value 1" step="0.01" min="0">
+                            </div>
+                            <div class="dimension-input-with-toggle" style="display: none;">
+                                <input type="checkbox" id="saved-dimension2-toggle" class="dimension-toggle" checked
+                                    onchange="updateSavedDimensionCalculation()">
+                                <input type="number" id="saved-dimension2" placeholder="Value 2" step="0.01" min="0">
+                            </div>
+                            <div class="dimension-input-with-toggle" style="display: none;">
+                                <input type="checkbox" id="saved-dimension3-toggle" class="dimension-toggle" checked
+                                    onchange="updateSavedDimensionCalculation()">
+                                <input type="number" id="saved-dimension3" placeholder="Value 3" step="0.01" min="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Barcode:</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="saved-barcode" placeholder="Scan or enter barcode" style="flex: 2;">
+                            <select id="saved-barcode-type" style="flex: 1;">
+                                <option value="CODE_128">Code 128</option>
+                                <option value="EAN_13">EAN 13</option>
+                                <option value="QR_CODE">QR Code</option>
+                                <option value="UPC_A">UPC A</option>
+                            </select>
+                            <button onclick="openScanner('modal')" class="icon-btn-square" title="Scan">
+                                <span class="material-icons">qr_code_scanner</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-row" style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Batch Number:</label>
+                            <input type="text" id="saved-batch-number" placeholder="Batch No.">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Section Code:</label>
+                            <input type="text" id="saved-section-code" placeholder="Section/Rack">
+                        </div>
+                    </div>
+
+                    <div class="form-row" style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Product Code:</label>
+                            <input type="text" id="saved-product-code" placeholder="Enter product code">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>HSN/SAC Code:</label>
+                            <input type="text" id="saved-hsn-code" placeholder="Enter HSN/SAC code">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Other Names (comma separated):</label>
+                        <textarea id="saved-other-names" placeholder="Enter other names separated by commas"
+                            rows="2"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notes:</label>
+                        <textarea id="saved-notes" placeholder="Enter notes" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer"
+                style="position: sticky; bottom: 0; background: #fff; z-index: 10; border-top: 1px solid #ddd;">
+                <div class="form-actions" style="margin-top: 0; padding: 0; border-top: none;">
+                    <button onclick="closeAddItemModal()" class="btn-cancel">Cancel</button>
+                    <button onclick="saveItem()" class="btn-apply" id="save-item-btn">Save Item</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Customers Modal -->
+    <div id="manage-customers-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Manage Customers</h3>
+                <span class="close" onclick="closeManageCustomersModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="search-add-bar">
+                    <input type="text" id="customer-search" placeholder="Search customers..."
+                        oninput="searchCustomers()">
+                    <button onclick="handleAddCustomer()" class="btn-apply" id="add-customer-main-btn">Add New
+                        Customer</button>
+                </div>
+                <!-- Toggle for Regular/GST Customers -->
+                <div class="mode-toggle" style="margin: 15px 0; display: flex; align-items: center; gap: 10px;">
+                    <span>Regular Customers</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="customer-mode-toggle" onchange="toggleCustomerMode()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span>GST Customers</span>
+                </div>
+                <div id="customers-list" class="items-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Customer Modal -->
+    <div id="add-customer-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 id="add-customer-modal-title">Add New Customer</h3>
+                <span class="close" onclick="closeAddCustomerModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Customer Name:</label>
+                    <input type="text" id="saved-customer-name" placeholder="Enter customer name">
+                </div>
+
+                <div class="form-group">
+                    <label>Address:</label>
+                    <textarea id="saved-customer-address" placeholder="Enter address" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Phone:</label>
+                    <input type="text" id="saved-customer-phone" placeholder="Enter phone number">
+                </div>
+
+                <div class="form-group">
+                    <label>GSTIN:</label>
+                    <input type="text" id="saved-customer-gstin" placeholder="Enter GSTIN">
+                </div>
+
+                <div class="form-actions">
+                    <button onclick="closeAddCustomerModal()" class="btn-cancel">Cancel</button>
+                    <button onclick="saveCustomer()" class="btn-apply" id="save-customer-btn">Save Customer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Saved Bills Modal -->
+    <div id="saved-bills-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Saved Bills</h3>
+                <span class="close" onclick="closeSavedBillsModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="search-add-bar">
+                    <input type="text" id="saved-bills-search" placeholder="Search bills..."
+                        oninput="searchSavedBills()">
+
+                    <select id="saved-prefix-filter" onchange="applySavedBillsFilter()"
+                        style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin-left: 10px;">
+                        <option value="all">All Prefixes</option>
+                    </select>
+                </div>
+                <!-- Toggle for Regular/GST Bills -->
+                <div class="mode-toggle" style="margin: 15px 0; display: flex; align-items: center; gap: 10px;">
+                    <span>Regular Bills</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="bills-mode-toggle" onchange="toggleBillsMode()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span>GST Bills</span>
+                </div>
+                <div id="saved-bills-list" class="items-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GST Manage Customers Modal -->
+    <div id="gst-manage-customers-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Manage GST Customers</h3>
+                <span class="close" onclick="closeGSTManageCustomersModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="search-add-bar">
+                    <input type="text" id="gst-customer-search" placeholder="Search GST customers..."
+                        oninput="searchGSTCustomers()">
+                    <button onclick="openAddGSTCustomerModal()" class="btn-apply">Add New GST Customer</button>
+                </div>
+                <div id="gst-customers-list" class="items-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit GST Customer Modal -->
+    <div id="add-gst-customer-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 id="add-gst-customer-modal-title">Add New GST Customer</h3>
+                <span class="close" onclick="closeAddGSTCustomerModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Customer Name:</label>
+                    <input type="text" id="saved-gst-customer-name" placeholder="Enter customer name">
+                </div>
+
+                <div class="form-group">
+                    <label>Address:</label>
+                    <textarea id="saved-gst-customer-address" placeholder="Enter address" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Phone:</label>
+                    <input type="text" id="saved-gst-customer-phone" placeholder="Enter phone number">
+                </div>
+
+                <div class="form-group">
+                    <label>GSTIN:</label>
+                    <input type="text" id="saved-gst-customer-gstin" placeholder="Enter GSTIN">
+                </div>
+
+                <div class="form-group">
+                    <label>State Name:</label>
+                    <input type="text" id="saved-gst-customer-state" placeholder="Enter state name" value="Maharashtra">
+                </div>
+
+                <div class="form-group">
+                    <label>State Code:</label>
+                    <input type="text" id="saved-gst-customer-state-code" placeholder="Enter state code" value="27">
+                </div>
+
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="saved-gst-customer-email" placeholder="Enter email">
+                </div>
+
+                <div class="form-actions">
+                    <button onclick="closeAddGSTCustomerModal()" class="btn-cancel">Cancel</button>
+                    <button onclick="saveGSTCustomer()" class="btn-apply" id="save-gst-customer-btn">Save GST
+                        Customer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GST Saved Bills Modal -->
+    <div id="gst-saved-bills-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>GST Saved Bills</h3>
+                <span class="close" onclick="closeGSTSavedBillsModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="gst-saved-bills-list" class="items-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="history-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Bill History</h3>
+                <span class="close" onclick="closeHistoryModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="search-add-bar">
+                    <input type="text" id="history-search" placeholder="Search history..." oninput="searchHistory()">
+                    <button onclick="openClearHistoryConfirmation()" class="btn-delete">Clear All History</button>
+                </div>
+                <div id="history-list" class="items-list" style="max-height: 400px; overflow-y: auto;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clear History Confirmation Modal -->
+    <div id="clear-history-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>Confirm Clear History</h3>
+                <span class="close" onclick="closeClearHistoryModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to clear all history? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeClearHistoryModal()" class="btn-cancel">Cancel</button>
+                <button onclick="clearAllHistory()" class="btn-delete">Yes, Clear All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Sidebar -->
+    <div id="settings-overlay" onclick="toggleSettingsSidebar()"></div>
+    <div id="app-sidebar" class="sidebar-closed">
+        <div id="sidebar-categories">
+            <button class="sidebar-cat-btn" onclick="toggleSubMenu('business', this)" title="Business">
+                <span class="material-icons">business_center</span>
+                <span class="sidebar-tooltip">Business</span>
+            </button>
+
+            <button class="sidebar-cat-btn" onclick="toggleSubMenu('modes')" title="Modes & Tax">
+                <span class="material-icons">settings_applications</span>
+                <span class="sidebar-tooltip">Modes & Tax</span>
+            </button>
+
+            <button class="sidebar-cat-btn" onclick="openManageItemsModal()" title="Manage Items">
+                <span class="material-icons">inventory_2</span>
+                <span class="sidebar-tooltip">Items</span>
+            </button>
+
+            <button class="sidebar-cat-btn" onclick="toggleSubMenu('sale')" title="Sale">
+                <span class="material-icons">shopping_cart</span>
+                <span class="sidebar-tooltip">Sale</span>
+            </button>
+
+            <button class="sidebar-cat-btn" onclick="toggleSubMenu('purchase')" title="Purchase">
+                <span class="material-icons">shopping_bag</span>
+                <span class="sidebar-tooltip">Purchase</span>
+            </button>
+
+            <button class="sidebar-cat-btn" onclick="openExpenseModal()" title="Expenses">
+                <span class="material-icons">account_balance_wallet</span>
+                <span class="sidebar-tooltip">Expenses</span>
+            </button>
+
+            <button class="sidebar-cat-btn" onclick="toggleSubMenu('tools')" title="Tools">
+                <span class="material-icons">build</span>
+                <span class="sidebar-tooltip">Tools</span>
+            </button>
+
+            <button class="sidebar-cat-btn" onclick="toggleSubMenu('records')" title="Records">
+                <span class="material-icons">article</span>
+                <span class="sidebar-tooltip">Records</span>
+            </button>
+
+            <button class="sidebar-cat-btn" onclick="toggleSubMenu('settings')" title="Settings">
+                <span class="material-icons">settings</span>
+                <span class="sidebar-tooltip">Settings</span>
+            </button>
+
+            <div style="flex:1"></div>
+
+            <button class="sidebar-cat-btn" onclick="saveCurrentBill()" title="Save Bill">
+                <span class="material-icons">save</span>
+                <span class="sidebar-tooltip">Save</span>
+            </button>
+
+            <button class="sidebar-cat-btn" onclick="handlePrint()" title="Print">
+                <span class="material-icons">print</span>
+                <span class="sidebar-tooltip">Print</span>
+            </button>
+
+            <button class="sidebar-cat-btn" onclick="toggleSettingsSidebar()">
+                <span class="material-icons">close</span>
+                <span class="sidebar-tooltip">Close</span>
+            </button>
+        </div>
+
+        <div id="sidebar-submenus">
+
+            <div id="sub-business" class="sub-menu-group">
+                <div class="sub-menu-header">Business</div>
+                <button onclick="openBusinessDashboard()" class="sidebar-action-btn">
+                    <span class="material-icons">dashboard</span>
+                    <span class="sidebar-label">Dashboard</span>
+                </button>
+                <button onclick="openCompanyInfoModal()" class="sidebar-action-btn company-info-btn">
+                    <span class="material-icons">business</span>
+                    <span class="sidebar-label">Company Info</span>
+                </button>
+                <button onclick="openBillHeadingModal()" class="sidebar-action-btn">
+                    <span class="material-icons">title</span>
+                    <span class="sidebar-label">Bill Headings</span>
+                </button>
+                <button onclick="openTermsListModal()" class="sidebar-action-btn" id="addTermsListSectionBtn">
+                    <span class="material-icons">list</span>
+                    <span class="sidebar-label">Add Terms</span>
+                </button>
+                <button onclick="openBrandingModal()" class="sidebar-action-btn">
+                    <span class="material-icons">branding_watermark</span>
+                    <span class="sidebar-label">Logo & Sign</span>
+                </button>
+            </div>
+
+            <div id="sub-modes" class="sub-menu-group">
+                <div class="sub-menu-header">Modes</div>
+                <button onclick="openGSTModeModal()" class="sidebar-action-btn gst-mode-btn">
+                    <span class="material-icons">receipt_long</span>
+                    <span class="sidebar-label">Switch Mode</span>
+                </button>
+                <button id="btn-regular-details" onclick="openRegularBillModal()" class="sidebar-action-btn">
+                    <span class="material-icons">description</span>
+                    <span class="sidebar-label">Regular Bill Details</span>
+                </button>
+                <button onclick="openCustomerDetailsModal()" class="sidebar-action-btn customer-details-btn">
+                    <span class="material-icons">person</span>
+                    <span class="sidebar-label">Cust. Details (GST)</span>
+                </button>
+                <button onclick="openTaxAdjustmentModal()" class="sidebar-action-btn tax-adjustment-btn">
+                    <span class="material-icons">calculate</span>
+                    <span class="sidebar-label">Tax Rates</span>
+                </button>
+                <button onclick="toggleProfitView()" class="sidebar-action-btn">
+                    <span class="material-icons">trending_up</span>
+                    <span class="sidebar-label">Profit Calc</span>
+                </button>
+            </div>
+
+            <div id="sub-sale" class="sub-menu-group">
+                <div class="sub-menu-header">Sale</div>
+                <button onclick="openManageCustomersModal()" class="sidebar-action-btn">
+                    <span class="material-icons">groups</span>
+                    <span class="sidebar-label">Customers</span>
+                </button>
+                <button onclick="openGSTManageCustomersModal()" class="sidebar-action-btn gst-customers-btn">
+                    <span class="material-icons">group_add</span>
+                    <span class="sidebar-label">GST Customers</span>
+                </button>
+                <button onclick="openSavedBillsModal()" class="sidebar-action-btn">
+                    <span class="material-icons">folder_open</span>
+                    <span class="sidebar-label">Saved Bills</span>
+                </button>
+                <button onclick="openGSTSavedBillsModal()" class="sidebar-action-btn gst-bills-btn">
+                    <span class="material-icons">receipt</span>
+                    <span class="sidebar-label">GST Bills</span>
+                </button>
+            </div>
+
+            <div id="sub-purchase" class="sub-menu-group">
+                <div class="sub-menu-header">Purchase</div>
+                <button onclick="toggleVendorMode()" class="sidebar-action-btn vendor-mode-btn">
+                    <span class="material-icons">store</span>
+                    <span class="sidebar-label">Vendor Mode</span>
+                </button>
+                <button onclick="openManageVendorsModal()" class="sidebar-action-btn">
+                    <span class="material-icons">people_alt</span>
+                    <span class="sidebar-label">Vendors</span>
+                </button>
+                <button onclick="openVendorSavedBillsModal()" class="sidebar-action-btn">
+                    <span class="material-icons">snippet_folder</span>
+                    <span class="sidebar-label">Vendor Bills</span>
+                </button>
+            </div>
+
+            <div id="sub-tools" class="sub-menu-group">
+                <div class="sub-menu-header">Tools</div>
+                <button onclick="openOCRModal()" class="sidebar-action-btn">
+                    <span class="material-icons">text_snippet</span>
+                    <span class="sidebar-label">OCR Assistant</span>
+                </button>
+                <button onclick="openBatchInvoiceModal()" class="sidebar-action-btn">
+                    <span class="material-icons">receipt</span>
+                    <span class="sidebar-label">Batch Invoice</span>
+                </button>
+            </div>
+
+            <div id="sub-records" class="sub-menu-group">
+                <div class="sub-menu-header">Records</div>
+                <button onclick="openHistoryModal()" class="sidebar-action-btn">
+                    <span class="material-icons">history</span>
+                    <span class="sidebar-label">History</span>
+                </button>
+                <button onclick="openRestoredBillsModal()" class="sidebar-action-btn">
+                    <span class="material-icons">archive</span>
+                    <span class="sidebar-label">Restored Bills</span>
+                </button>
+            </div>
+
+            <div id="sub-settings" class="sub-menu-group">
+                <div class="sub-menu-header">Settings</div>
+                <button onclick="cycleTheme()" class="sidebar-action-btn">
+                    <span class="material-icons">palette</span>
+                    <span class="sidebar-label">Theme</span>
+                </button>
+                <button onclick="openPersonalizeModal()" class="sidebar-action-btn">
+                    <span class="material-icons">wallpaper</span>
+                    <span class="sidebar-label">Personalize</span>
+                </button>
+                <button onclick="toggleAutoApplyRates()" class="sidebar-action-btn auto-apply-rates-btn">
+                    <span class="material-icons">auto_awesome</span>
+                    <span class="sidebar-label">Auto Rates</span>
+                </button>
+                <button onclick="toggleAutoRateConversion()" class="sidebar-action-btn" id="btn-auto-rate">
+                    <span class="material-icons">autorenew</span>
+                    <span class="sidebar-label">Rate Convert : OFF</span>
+                </button>
+
+                <button onclick="backupData()" class="sidebar-action-btn">
+                    <span class="material-icons">backup</span>
+                    <span class="sidebar-label">Backup</span>
+                </button>
+                <button onclick="restoreData()" class="sidebar-action-btn">
+                    <span class="material-icons">cloud_download</span>
+                    <span class="sidebar-label">Restore</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tools">
+        <button onclick="toggleSettingsSidebar()">
+            <span class="material-icons">menu</span>
+            <span>Sidebar</span>
+        </button>
+        <button onclick="toggleView()" data-view="bill">
+            <span class="material-icons" id="view-icon">description</span>
+            <span id="view-text">SHOW BILL</span>
+        </button>
+        <button onclick="undoAction()">
+            <span class="material-icons">undo</span>
+            <span>UNDO</span>
+        </button>
+        <button onclick="redoAction()">
+            <span class="material-icons">redo</span>
+            <span>REDO</span>
+        </button>
+        <button onclick="clearAllData()">
+            <span class="material-icons">auto_delete</span>
+            <span>CLEAR ALL</span>
+        </button>
+        <button onclick="downloadPDF()">
+            <span class="material-icons">picture_as_pdf</span>
+            <span>PDF</span>
+        </button>
+        <button onclick="openShareModal()">
+            <span class="material-icons">share</span>
+            <span>SHARE</span>
+        </button>
+        <button id="rate-toggle-btn" onclick="openColumnDialog()" style="display: inline-block;">
+            <span class="material-icons">visibility</span>
+            <span>COLUMNS</span>
+        </button>
+        <button onclick="openDiscountModal()" id="discount-tool-btn">
+            <span class="material-icons">percent</span>
+            <span>DISCOUNT</span>
+        </button>
+        <button onclick="openGSTModal()" id="gst-tool-btn">
+            <span class="material-icons">request_quote</span>
+            <span>GST</span>
+        </button>
+        <button onclick="openAdjustmentModal()">
+            <span class="material-icons">tune</span>
+            <span>ADJUSTMENTS</span>
+        </button>
+
+        <button onclick="openSectionModal()">
+            <span class="material-icons">view_day</span>
+            <span>SECTION</span>
+        </button>
+        <button onclick="toggleDimensionsDisplay()" id="toggleDimensionText">
+            <span class="material-icons">layers</span>
+            <span>DIMENSIONS</span>
+        </button>
+        <button onclick="toggleRegularFooter()" id="reg-footer-btn" style="display: none;">
+            <span class="material-icons">approval</span>
+            <span>FOOTER</span>
+        </button>
+    </div>
+
+    <div id="main-container">
+        <!-- Regular Bill Container -->
+        <div id="bill-container" style="display: none">
+            <h4 id="regular-bill-heading"
+                style="display: none; text-align: center; margin-bottom: 5px; text-transform: uppercase;"></h4>
+            <div class="company-details" id="regular-company-details">
+                <div class="company-text">
+                    <div class="top-name" id="companyName">COMPANY NAME</div>
+                    <div class="contact">
+                        <p id="companyAddr">Address</p>
+                        <p id="reg-header-gstin-line">GSTIN : <span id="companyGstin">Your 15-digit GSTIN</span></p>
+                        <p id="reg-header-phone-line">Contact No : <span id="companyPhone">+91 1234567890</span></p>
+                        <p id="reg-header-email-line">Email : <span id="companyEmail">abcd@gmail.com</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="customer-details">
+
+                <div id="reg-default-view" style="display: block;">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td class="label">
+                                    Name:
+                                    <div
+                                        style="position: relative; display: inline-block; width: calc(100% - 70px); vertical-align: top;">
+                                        <input type="text" id="custName"
+                                            oninput="handleRegularCustomerSearch(); syncRegularData('view')"
+                                            autocomplete="off" style="width: 100%; margin-left: 5px;">
+                                        <div class="customer-suggestions" id="regular-customer-suggestions"
+                                            style="display: none;"></div>
+                                    </div>
+                                </td>
+                                <td class="label">
+                                    Bill no:
+                                    <span id="billPrefixDisplay"
+                                        style="color: #0f0f0f; margin-right: 2px;font-size: 0.9rem;"></span>
+
+                                    <input type="text" id="billNo"
+                                        oninput="saveToLocalStorage(); syncRegularData('view')"
+                                        style="display: inline-block;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label">
+                                    Address: <input type="text" id="custAddr"
+                                        oninput="saveToLocalStorage(); syncRegularData('view')">
+                                </td>
+                                <td class="label">
+                                    Date: <input type="text" id="billDate"
+                                        oninput="saveToLocalStorage(); syncRegularData('view')">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label">
+                                    Contact no: <input type="text" id="custPhone"
+                                        oninput="saveToLocalStorage(); syncRegularData('view')" pattern="[0-9]*"
+                                        inputmode="numeric">
+                                </td>
+                                <td class="label" id="custGSINTd" style="display: none;">
+                                    GSTIN: <input type="text" id="custGSTIN"
+                                        oninput="saveGSTIN(); syncRegularData('view')">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="reg-advanced-view" style="display: none;">
+
+                    <div style="display: flex; justify-content: space-between;">
+                        <div style="font-size: 16px;">
+                            Invoice No : <strong id="adv-invoice-no"></strong>
+                            <!-- style="color: var(--primary-color);" -->
+                        </div>
+                        <div style="font-size: 16px;">
+                            Dated : <strong id="adv-bill-date"></strong>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 20px;">
+
+                        <div style="flex: 1; padding: 10px;">
+                            <h4 style="margin: 0 0 2px 0; color: var(--primary-color);padding-bottom: 5px;">
+                                Bill To</h4>
+                            <div style="font-size: 14px; line-height: 1.2;">
+                                <div id="adv-bill-name" style="font-weight: bold; font-size: 15px;"></div>
+                                <div id="adv-bill-addr" style="white-space: pre-wrap; margin-bottom: 5px; color: #555;">
+                                </div>
+
+                                <div style="display: flex; flex-direction: column; gap: 2px; font-size: 13px;">
+                                    <div><span>GSTIN:</span> <span id="adv-bill-gst"></span></div>
+                                    <div><span>Contact:</span> <span id="adv-bill-phone"></span></div>
+                                    <div><span>State:</span> <span id="adv-bill-state"></span> (<span
+                                            id="adv-bill-code"></span>)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="adv-ship-col" style="flex: 1;padding: 10px;display: none;">
+                            <h4 style="margin: 0 0 2px 0; color: var(--primary-color); padding-bottom: 5px;">
+                                Ship To</h4>
+                            <div style="font-size: 14px; line-height: 1.2;">
+                                <div id="adv-ship-name" style="font-weight: bold; font-size: 15px;"></div>
+                                <div id="adv-ship-addr" style="white-space: pre-wrap; margin-bottom: 5px; color: #555;">
+                                </div>
+
+                                <div style="display: flex; flex-direction: column; gap: 2px; font-size: 13px;">
+                                    <div><span>GSTIN:</span> <span id="adv-ship-gst"></span></div>
+                                    <div><span>Contact:</span> <span id="adv-ship-phone"></span></div>
+                                    <div><span>State:</span> <span id="adv-ship-state"></span> (<span
+                                            id="adv-ship-code"></span>)</div>
+                                    <div><span>POS:</span> <span id="adv-ship-pos"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="vendor-details-container" style="display: none; margin-bottom: 20px;">
+                <h4
+                    style="text-align: center; margin-bottom: 15px; text-transform: uppercase; color: var(--primary-color);">
+                    Purchase Entry</h4>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td class="label">Vendor Name:
+                            <div
+                                style="position: relative; display: inline-block; width: calc(100% - 110px); vertical-align: top;">
+                                <input type="text" id="vendorName" placeholder="Enter Vendor Name"
+                                    oninput="handleVendorSearch()" autocomplete="off"
+                                    style="width: 100%; margin-left: 5px;">
+                                <div class="customer-suggestions" id="vendor-suggestions" style="display: none;"></div>
+                            </div>
+                        </td>
+                        <td class="label">Invoice No: <input type="text" id="vendorInvoiceNo"
+                                placeholder="Vendor Bill No" /></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Address: <input type="text" id="vendorAddr" placeholder="Vendor Address" />
+                        </td>
+                        <td class="label">Date: <input type="text" id="vendorDate" placeholder="DD-MM-YYYY" /></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Contact: <input type="text" id="vendorPhone" placeholder="Contact No" /></td>
+                        <td class="label">GSTIN: <input type="text" id="vendorGSTIN" placeholder="Vendor GSTIN" /></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Email: <input type="email" id="vendorEmail" placeholder="vendor@email.com" />
+                        </td>
+                        <td class="label">
+                            Type:
+                            <select id="vendorType"
+                                style="border: none; border-bottom: 1px solid var(--border-color); width: 100px; background: transparent;">
+                                <option value="Regular">Regular</option>
+                                <option value="GST">GST</option>
+                            </select>
+                            <label for="vendorFile"
+                                style="cursor: pointer; margin-left: 10px; color: var(--primary-color);">
+                                <span class="material-icons"
+                                    style="font-size: 18px; vertical-align: middle;">attach_file</span> Upload Bill
+                            </label>
+                            <input type="file" id="vendorFile" accept="image/*,application/pdf" style="display: none;"
+                                onchange="handleVendorFileSelect(this)">
+                            <span id="vendorFileName" style="font-size: 0.8em; color: green; display: none;">File
+                                Selected</span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="list-of-items" id="bill-list-of-items">
+                <table id="copyListManual">
+                    <thead>
+                        <tr>
+                            <th>Sr No</th>
+                            <th>Particulars</th>
+                            <th>Qty</th>
+                            <th>Unit</th>
+                            <th>Rate</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <table id="bill-total-table">
+                    <tbody id="bill-total-tbody">
+                        <tr>
+                            <td colspan="5" class="total-cell" style="text-align: right; width: 80%;">TOTAL</td>
+                            <td id="createTotalAmountManual" class="total-cell" style="text-align: center; width: 20%;">
+                                0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="bill-footer" id="regular-bill-footer" style="display: none; margin-top: 20px;">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <p><strong>Amount Chargeable (in words)</strong></p>
+                            </td>
+                            <td class="align-center" colspan="2">
+                                <p id="reg-bill-company-signatory">for COMPANY NAME</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <p id="reg-bill-amount-words">Rupees Zero Only</p>
+                            </td>
+                            <td rowspan="2" style="width: 15%; vertical-align: middle;text-align: center;"
+                                id="reg-stamp-cell"></td>
+                            <td rowspan="2" style="width: 15%; vertical-align: middle;text-align: center;"
+                                id="reg-signature-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="bank-info">
+                                <p><strong>A/C Holder Name :</strong> <span id="reg-bill-account-holder">-</span></p>
+                                <p><strong>A/C No :</strong> <span id="reg-bill-account-number">-</span></p>
+                                <span><strong>IFSC :</strong> <span id="reg-bill-ifsc-code">-</span></span>
+                                <span><strong>Branch :</strong> <span id="reg-bill-branch">-</span></span>
+                                <p><strong>Bank Name :</strong> <span id="reg-bill-bank-name">-</span></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>Declaration : </b>
+                                <p><small>We declare that this invoice shows the actual price of the </small></p>
+                                <p><small>goods described and that all particulars are true and correct</small></p>
+                            </td>
+                            <td style="text-align:center; vertical-align: middle;" colspan="2">Authorised Signatory</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- GST Bill Container -->
+        <div id="gst-bill-container" style="display: none">
+
+            <h4 id="gst-bill-heading"
+                style="display: none; text-align: center; margin-bottom: 5px; text-transform: uppercase;"></h4>
+            <div class="company-details" id="gst-company-details">
+                <div class="company-text">
+                    <div class="top-name" id="gstCompanyName">COMPANY NAME</div>
+                    <div class="contact">
+                        <p id="gstCompanyAddr">Address</p>
+                        <p>GSTIN : <span id="gstCompanyGstin">Your 15-digit GSTIN</span></p>
+                        <p>Contact No : <span id="gstCompanyPhone">+91 1234567890</span></p>
+                        <p>Email : <span id="gstCompanyEmail">abcd@gmil.com</span></p>
+                    </div>
+                </div>
+            </div>
+            <!-- Updated Customer Details Section in GST Bill -->
+            <div class="customer-details">
+                <div class="invoice-number-date">
+                    <div>Invoice No : <strong id="bill-invoice-no">001</strong></div>
+                    <div>Dated : <strong id="bill-date-gst">26 AUG 25</strong></div>
+                </div>
+
+                <!-- Bill To Section with Heading -->
+                <div id="billTo">
+                    <h4>Bill To</h4>
+                    <div id="billToContent">
+                        <p id="billToName">jhone doe</p>
+                        <p id="billToAddr">new york city</p>
+                        <p>GSTIN : <span id="billToGstin">customer 15-digit GSTIN</span></p>
+                        <p>Contact : <span id="billToContact">+91 1234567890</span></p> <!-- ADD THIS LINE -->
+                        <p>State : <span id="billToState">maharashtra</span>, Code : <span
+                                id="billToStateCode">27</span></p>
+                    </div>
+                </div>
+
+                <!-- Ship To Section with Heading (initially hidden) -->
+                <div id="shipTo" style="display: none;">
+                    <h4>Ship To</h4>
+                    <div id="shipToContent">
+                        <p id="shipToName">jhone doe</p>
+                        <p id="shipToAddr">new york city</p>
+                        <p>GSTIN : <span id="shipToGstin">customer 15-digit GSTIN</span></p>
+                        <p>Contact : <span id="shipToContact">+91 1234567890</span></p> <!-- ADD THIS LINE -->
+                        <p>State : <span id="shipToState">maharashtra</span>, Code : <span
+                                id="shipToStateCode">27</span></p>
+                        <p>Place Of Supply: : <span id="shipToPOS">pune</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="list-of-items" id="gst-bill-list-of-items">
+                <!-- Updated GST Table with HSN/SAC after Particulars -->
+                <table id="gstCopyListManual">
+                    <thead>
+                        <tr>
+                            <th>Sr No</th>
+                            <th>Particulars</th>
+                            <th>HSN/SAC</th>
+                            <th>Qty</th>
+                            <th>Unit</th>
+                            <th>Rate</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+                <table id="gst-bill-totals-table">
+                    <tbody>
+                        <tr>
+                            <td>Sub Total</td>
+                            <td id="gst-sub-total">0.00</td>
+                        </tr>
+                        <tr id="gst-discount-row" style="display: none;">
+                            <td>Discount(<span id="gst-discount-percent">0</span>%)</td>
+                            <td id="gst-discount-amount">-0.00</td>
+                        </tr>
+                        <tr id="gst-cgst-row" style="display: none;">
+                            <td>CGST</td>
+                            <td id="gst-cgst-amount">0.00</td>
+                        </tr>
+                        <tr id="gst-sgst-row" style="display: none;">
+                            <td>SGST</td>
+                            <td id="gst-sgst-amount">0.00</td>
+                        </tr>
+                        <tr id="gst-igst-row" style="display: none;">
+                            <td>IGST</td>
+                            <td id="gst-igst-amount">0.00</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Grand Total</strong></td>
+                            <td><strong id="gst-grand-total">0.00</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="tax-section">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="align-center" rowspan="2">HSN/SAC</th>
+                                <th class="align-center" rowspan="2">Taxable Value</th>
+                                <th class="align-center" colspan="2">Central Tax</th>
+                                <th class="align-center" colspan="2">State Tax</th>
+                                <th class="align-center" rowspan="2">Total Tax Amount</th>
+                            </tr>
+                            <tr>
+                                <th class="align-center">Rate</th>
+                                <th class="align-center">Amount</th>
+                                <th class="align-center">Rate</th>
+                                <th class="align-center">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bill-tax-tbody">
+                            <tr id="gst-no-tax-data">
+                                <td colspan="7" class="align-center">No tax data available</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <table class="bill-footer">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <p><strong>Amount Chargeable (in words)</strong></p>
+                            </td>
+                            <td class="align-center" colspan="2">
+                                <p id="bill-company-signatory">for COMPANY NAME</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <p id="bill-amount-words">Rupees Zero Only</p>
+                            </td>
+                            <td rowspan="2" style="width: 15%; vertical-align: middle;text-align: center;"
+                                id="stamp-cell">
+                            </td>
+                            <td rowspan="2" style="width: 15%; vertical-align: middle;text-align: center;"
+                                id="signature-cell">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="bank-info">
+                                <p><strong>A/C Holder Name :</strong> <span id="bill-account-holder">-</span></p>
+                                <p><strong>A/C No :</strong> <span id="bill-account-number">-</span></p>
+                                <span><strong>IFSC :</strong> <span id="bill-ifsc-code">-</span></span>
+                                <span><strong>Branch :</strong> <span id="bill-branch">-</span></span>
+                                <p><strong>Bank Name :</strong> <span id="bill-bank-name">-</span></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>Declaration : </b>
+                                <p><small>We declare that this invoice shows the actual price of the </small></p>
+                                <p><small>goods described and that all particulars are true and correct</small></p>
+                            </td>
+                            <td style="text-align:center; vertical-align: middle;" colspan="2">Authorised Signatory</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="manual-item-container">
+            <div class="size-input">
+                <div style="position: relative; flex: 1; display: flex; gap: 5px;">
+                    <input id="itemNameManual" type="text" autocomplete="off" placeholder="Custom Item Name..."
+                        onchange="handleItemNameInput()" oninput="handleItemSearch()" style="flex: 1;">
+                    <button onclick="openScanner('main')" id="addItemScan" class="icon-btn-square" title="Scan Barcode">
+                        <span class="material-icons">qr_code_scanner</span>
+                    </button>
+                    <div class="item-suggestions" id="item-suggestions" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- HSN Input for GST Mode -->
+            <div class="size-input" id="hsn-input-container" style="display: none;">
+                <input type="text" id="hsnCodeManual" placeholder="HSN/SAC Code" />
+                <input type="text" id="productCodeManual" placeholder="Product Code" />
+            </div>
+
+            <!-- Discount Inputs - Hidden by default -->
+            <div class="size-input" id="discount-inputs-container" style="display: none;">
+                <select id="discountType" aria-label="Select discount type">
+                    <option value="none">Select Discount</option>
+                    <option value="percent_per_unit">Discount % / unit</option>
+                    <option value="amt_per_unit">Discount amt / unit</option>
+                    <option value="percent_on_amount">Discount % on amount</option>
+                    <option value="amt_on_amount">Discount amt on amount</option>
+                </select>
+                <input type="number" id="discountValue" placeholder="Discount Value" step="0.01" min="0">
+            </div>
+
+            <!-- Dimension Inputs - Hidden by default -->
+            <div class="size-input" id="dimension-inputs-container" style="display: none;">
+                <select id="dimensionType" onchange="handleDimensionTypeChange()">
+                    <option value="none">Select Dimension</option>
+                    <option value="length">Length</option>
+                    <option value="widthXheight">Width X Height</option>
+                    <option value="widthXheightXdepth">Width X Height X Depth</option>
+                    <option value="dozen">Dozen (n/12)</option>
+                    <!-- NEW OPTIONS -->
+                    <option value="lengthXwidthXheight">Length X Width X Height</option>
+                    <option value="widthXdepth">Width X Depth</option>
+                    <option value="lengthXheightXdepth">Length X Height X Depth</option>
+                    <option value="lengthXdepth">Length X Depth</option>
+                    <option value="lengthXheight">Length X Height</option>
+                    <option value="lengthXwidth">Length X Width</option>
+                    <option value="lengthXwidthXdepth">Length X Width X Depth</option>
+                </select>
+
+                <select id="measurementUnit" onchange="handleMeasurementUnitChange()" style="display: none;">
+                    <option value="ft">ft</option>
+                    <option value="inch">inch</option>
+                    <option value="mtr">mtr</option>
+                    <option value="cm">cm</option>
+                    <option value="mm">mm</option>
+                </select>
+                <select id="convertUnit" onchange="handleConvertUnitChange()" style="display: none; margin-left: 5px;">
+                    <option value="none">Select Convert</option>
+                    <option value="ft">ft</option>
+                    <option value="inch">inch</option>
+                    <option value="mtr">mtr</option>
+                    <option value="cm">cm</option>
+                    <option value="mm">mm</option>
+                </select>
+            </div>
+
+            <!-- Dimension Inputs -->
+            <!-- Replace the dimensionInputs div with this: -->
+            <div class="size-input" id="dimensionInputs" style="display: none;">
+                <div class="dimension-input-with-toggle">
+                    <input type="checkbox" id="dimension1-toggle" class="dimension-toggle" checked
+                        onchange="updateDimensionCalculation()">
+                    <input type="number" id="dimension1" placeholder="Value 1" step="0.01" min="0">
+                </div>
+                <div class="dimension-input-with-toggle" style="display: none;">
+                    <input type="checkbox" id="dimension2-toggle" class="dimension-toggle" checked
+                        onchange="updateDimensionCalculation()">
+                    <input type="number" id="dimension2" placeholder="Value 2" step="0.01" min="0">
+                </div>
+                <div class="dimension-input-with-toggle" style="display: none;">
+                    <input type="checkbox" id="dimension3-toggle" class="dimension-toggle" checked
+                        onchange="updateDimensionCalculation()">
+                    <input type="number" id="dimension3" placeholder="Value 3" step="0.01" min="0">
+                </div>
+            </div>
+
+            <div class="size-input">
+                <input id="quantityManual" type="number" placeholder="Quantity" step="0.01" min="0" />
+                <div style="position: relative; flex: 1;">
+                    <input id="selectUnit" type="text" placeholder="Enter Unit..." oninput="handleUnitSearch()"
+                        autocomplete="off" style="width: 100%;">
+                    <div class="item-suggestions" id="unit-suggestions" style="display: none;"></div>
+                </div>
+                <input id="rateManual" type="number" placeholder="Rate" step="0.01" min="0" />
+            </div>
+
+            <textarea id="itemNotesManual" rows="3" placeholder="Add notes for this item..."
+                oninput="autoSave()"></textarea>
+
+            <div class="size-input">
+                <button onclick="addRowManual()" id="addItemBtnManual">Add Item</button>
+                <button onclick="updateRowManual()" id="updateItemBtnManual" style="display: none;">Update Item</button>
+                <button onclick="toggleDiscountInputs()" id="toggleDiscountBtn">Discount</button>
+                <button onclick="toggleDimensionInputs()" id="toggleDimensionBtn">Dimensions</button>
+                <button onclick="toggleConvertOptions()" id="toggleConvertBtn"
+                    style="display: none; background-color: #95a5a6;">Convert</button>
+                <button onclick="toggleGSTInclusive()" id="gstInclusiveBtn" style="display: none;">Exclusive</button>
+            </div>
+
+            <div id="addedItemsManual">
+                <table id="createListManual">
+                    <thead>
+                        <tr>
+                            <th>Sr No</th>
+                            <th>Particulars</th>
+                            <th>Qty</th>
+                            <th>Unit</th>
+                            <th>Rate</th>
+                            <th>Amount</th>
+                            <th>Actions</th> <!-- Changed from Remove to Actions -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <table>
+                    <tr>
+                        <td colspan="5" class="total-cell">TOTAL AMT</td>
+                        <td id="createTotalAmountManual" class="total-cell">0.00</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Notification System -->
+    <div id="notification-container" class="notification-container"></div>
+
+    <!-- Custom Confirm Dialog -->
+    <div id="confirm-dialog" class="confirm-dialog">
+        <div class="confirm-dialog-content">
+            <div class="confirm-dialog-header">
+                <h3>Confirmation</h3>
+            </div>
+            <div class="confirm-dialog-body">
+                <p id="confirm-message">Are you sure?</p>
+            </div>
+            <div class="confirm-dialog-footer">
+                <button id="confirm-no" class="btn-cancel">No</button>
+                <button id="confirm-yes" class="btn-apply">Yes</button>
+            </div>
+        </div>
+    </div>
+    <!-- Terms List Modal -->
+    <div id="terms-list-modal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3>Create Terms & Conditions</h3>
+                <span class="close" onclick="closeTermsListModal()">&times;</span>
+            </div>
+            <div class="modal-body" style="max-height:70vh;overflow-y:scroll;">
+                <div class="form-group">
+                    <label for="terms-heading">Heading:</label>
+                    <input type="text" id="terms-heading" placeholder="Enter heading (e.g., Notes, Terms, Disclaimer)"
+                        oninput="updateTermsPreview()">
+                </div>
+
+                <div class="form-group">
+                    <label>List Type & Style:</label>
+                    <div class="terms-controls">
+                        <select id="terms-list-type" onchange="handleListTypeChange()">
+                            <option value="ul">Unordered List</option>
+                            <option value="ol">Ordered List</option>
+                        </select>
+                        <select id="terms-list-style" onchange="updateTermsPreview()">
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>List Items:</label>
+                    <div id="terms-items-container">
+                        <!-- Dynamic items will be added here -->
+                    </div>
+                    <button type="button" onclick="addTermsListItem()" class="btn-add-item">
+                        <i class="material-icons">add</i> Add Item
+                    </button>
+                </div>
+
+                <div class="terms-preview-section">
+                    <h4>Preview:</h4>
+                    <div id="terms-preview" class="terms-preview">
+                        <!-- Preview will be updated here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeTermsListModal()" class="btn-cancel">Cancel</button>
+                <button id="delete-terms-btn" onclick="deleteCurrentTerms()" class="btn-delete" style="display: none;">
+                    <i class="material-icons">delete</i> Delete Terms
+                </button>
+                <button onclick="saveTermsList()" class="btn-apply">Save Terms</button>
+            </div>
+        </div>
+    </div>
+    <div id="batch-invoice-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Batch Invoice Generator</h3>
+                <span class="close" onclick="closeBatchInvoiceModal()">×</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Enter product codes and quantities:</label>
+                    <textarea id="batch-invoice-input" rows="6"
+                        placeholder="Format: [productCode@qty, productCode@qty, ..., contactNumber, customerName]&#10;Example: [111222@2, 123@1, 9876543210, John Doe]"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button onclick="closeBatchInvoiceModal()" class="btn-cancel">Cancel</button>
+                    <button onclick="generateBatchInvoice()" class="btn-apply">Generate Invoice</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Column Visibility Dialog -->
+    <div id="columnDialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog-content">
+            <h3>Show/Hide Columns</h3>
+            <div class="checkbox-group">
+                <label><input type="checkbox" id="colSrNo" checked> SR NO</label>
+                <label><input type="checkbox" id="colQty" checked> QTY</label>
+                <label><input type="checkbox" id="colUnit" checked> UNIT</label>
+                <label><input type="checkbox" id="colRate" checked> RATE</label>
+                <label><input type="checkbox" id="colAmt" checked> AMT</label>
+                <label><input type="checkbox" id="colTotal" checked> TOTAL TABLE</label>
+            </div>
+            <div class="dialog-buttons">
+                <button onclick="applyColumnVisibility()">Apply</button>
+                <button onclick="closeColumnDialog()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <!-- Restored Bills Modal -->
+    <div id="restored-bills-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Restored Bills</h3>
+                <span class="close" onclick="closeRestoredBillsModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="search-add-bar">
+                    <input type="text" id="restored-bills-search" placeholder="Search restored bills..."
+                        oninput="searchRestoredBills()">
+                    <button onclick="restoreIndividualBill()" class="btn-primary">
+                        <i class="material-icons">add</i> Restore Bill from JSON
+                    </button>
+                </div>
+                <div id="restored-bills-list" class="items-list">
+                    <!-- Restored bills will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="add-stock-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>Add Stock</h3>
+                <span class="close" onclick="closeAddStockModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="stock-item-name" style="font-weight: bold; margin-bottom: 15px;"></p>
+                <div class="stock-input-group">
+                    <input type="number" id="add-stock-quantity" placeholder="Qty to add" min="1" step="1">
+                    <button onclick="saveAddedStock()" class="btn-apply">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="bill-heading-modal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3>Bill Headings</h3>
+                <span class="close" onclick="closeBillHeadingModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Regular Bill Heading:</label>
+                    <input type="text" id="regular-heading-input" placeholder="e.g. ESTIMATE / QUOTATION">
+                </div>
+                <div class="form-group">
+                    <label>GST Bill Heading:</label>
+                    <input type="text" id="gst-heading-input" placeholder="e.g. TAX INVOICE">
+                </div>
+
+                <div class="form-group">
+                    <label>Font Size (px):</label>
+                    <input type="number" id="heading-font-size-input" placeholder="e.g. 18" value="18">
+                </div>
+
+                <div class="form-group">
+                    <label>Text Case:</label>
+                    <select id="heading-text-transform">
+                        <option value="none">Normal</option>
+                        <option value="uppercase" selected>Uppercase</option>
+                        <option value="lowercase">Lowercase</option>
+                        <option value="capitalize">Capitalize</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeBillHeadingModal()" class="btn-cancel">Cancel</button>
+                <button onclick="saveBillHeadings()" class="btn-apply">Save Headings</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="branding-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Logo, Sign & Stamp</h3>
+                <span class="close" onclick="closeBrandingModal()">&times;</span>
+            </div>
+            <div class="modal-body" style="height: 70vh; overflow-y: auto;">
+                <div class="form-group">
+                    <label>Company Logo:</label>
+                    <div id="logo-preview" class="img-preview-box"></div>
+
+                    <input type="file" id="logo-upload" accept="image/*" onchange="previewImage(this, 'logo')">
+
+                    <div style="margin-top: 10px; display: flex; gap: 10px;">
+                        <div style="flex: 1;">
+                            <label>Logo Position:</label>
+                            <select id="logo-position" style="width: 100%;">
+                                <option value="left">Left</option>
+                                <option value="right">Right</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Border Radius (%):</label>
+                            <input type="number" id="logo-radius" value="0" min="0" max="50" placeholder="0-50"
+                                style="width: 100%;">
+                        </div>
+                    </div>
+
+                    <button onclick="clearImage('logo')" class="btn-cancel"
+                        style="margin-top:5px; padding: 5px 10px; font-size: 12px;">Remove Logo</button>
+                </div>
+                <hr>
+                <div class="form-group">
+                    <label>Signature:</label>
+                    <div id="sign-preview" class="img-preview-box"></div>
+
+                    <input type="file" id="sign-upload" accept="image/*" onchange="previewImage(this, 'signature')">
+                    <button onclick="clearImage('signature')" class="btn-cancel"
+                        style="margin-top:5px; padding: 5px 10px; font-size: 12px;">Remove Signature</button>
+                </div>
+                <div class="form-group">
+                    <label>Stamp/Seal:</label>
+                    <div id="stamp-preview" class="img-preview-box"></div>
+
+                    <input type="file" id="stamp-upload" accept="image/*" onchange="previewImage(this, 'stamp')">
+                    <button onclick="clearImage('stamp')" class="btn-cancel"
+                        style="margin-top:5px; padding: 5px 10px; font-size: 12px;">Remove Stamp</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeBrandingModal()" class="btn-cancel">Cancel</button>
+                <button onclick="saveBrandingSettings()" class="btn-apply">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="adjustment-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Adjustment Chain (Sequential)</h3>
+                <span class="close" onclick="closeAdjustmentModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="adjustment-form-wrapper" style="background: #f8f9fa; padding: 15px; border-radius: 4px;">
+                    <input type="hidden" id="adj-id">
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label>Description:</label>
+                        <input type="text" id="adj-name" placeholder="e.g. Discount, GST, Packing" style="width: 100%;">
+                    </div>
+
+                    <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 10px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Type:</label>
+                            <select id="adj-type" style="width: 100%;">
+                                <option value="amount">₹ Fixed Amount</option>
+                                <option value="percent">% Percent</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Value:</label>
+                            <input type="number" id="adj-value" placeholder="0" step="0.01" style="width: 100%;">
+                        </div>
+                    </div>
+
+                    <div class="form-row" style="display: flex; gap: 15px; align-items: flex-end;">
+                        <div class="form-group" style="flex: 2;">
+                            <label>Operation:</label>
+                            <select id="adj-operation" style="width: 100%;">
+                                <option value="add">(+) Add</option>
+                                <option value="subtract">(-) Subtract</option>
+
+                            </select>
+                        </div>
+                        <div class="form-group" style="width: 60px;">
+                            <label>Color:</label>
+                            <input type="color" id="adj-color" value="#000000"
+                                style="padding:0; height:38px; width: 100%; cursor: pointer;">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <button onclick="saveAdjustment()" class="btn-apply" id="btn-save-adj"
+                                style="width: 100%;">Add</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;overflow: auto;">
+                    <table class="unified-ledger-table" id="adj-preview-table">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Source Amt</th>
+                                <th>Adj Value</th>
+                                <th>Adj Amount</th>
+                                <th>Running Balance</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adj-preview-tbody">
+                        </tbody>
+                    </table>
+                    <p style="font-size: 0.8em; color: #666; margin-top: 5px;">
+                        <i class="material-icons" style="font-size: 12px;">info</i>
+                        Drag rows to reorder. Calculation is sequential (Top to Bottom).
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeAdjustmentModal()" class="btn-apply">Done</button>
+            </div>
+        </div>
+    </div>
+    <div id="scanner-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Scan Barcode</h3>
+                <span class="close" onclick="closeScannerModal()">×</span>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <div class="scan-mode-toggle">
+                    <button onclick="setScanMode('manual')" id="btn-scan-manual" class="btn-mode active">Manual</button>
+                    <button onclick="setScanMode('auto')" id="btn-scan-auto" class="btn-mode">Automatic</button>
+                </div>
+                <div class="manual-barcode-entry"
+                    style="display: flex; gap: 10px; margin-bottom: 15px; padding: 0 10px;">
+                    <input type="text" id="manual-barcode-text" placeholder="Type Barcode or Product Code"
+                        onkeypress="handleManualEnter(event)"
+                        style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    <button onclick="handleManualEntry()" class="icon-btn-square" title="Add Item"
+                        style="background-color: var(--primary-color); color: white;">
+                        <span class="material-icons">add</span>
+                    </button>
+                </div>
+                <div id="scanner-container"
+                    style="position: relative; width: 300px; height: 300px; margin: 0 auto; background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                    <video id="scanner-video" style="width: 100%; height: 100%; object-fit: cover;"></video>
+                    <div class="scan-overlay"></div>
+                </div>
+
+                <div id="scanner-controls" style="margin-top: 10px; display: flex; justify-content: center; gap: 10px;">
+                    <select id="camera-select" style="width: 250px; padding: 5px; display: inline-block;"></select>
+
+                    <button onclick="hideScannerModal()" class="icon-btn-square" title="Hide Scanner (Keep Scanning)"
+                        style="background-color: #666; color: white; width: 40px;">
+                        <span class="material-icons">visibility_off</span>
+                    </button>
+                </div>
+
+                <div id="quick-add-form"
+                    style="display: none; margin-top: 15px; text-align: left; border-top: 1px solid #eee; padding-top: 15px;">
+                    <h4 id="scanned-item-name" style="margin: 0 0 10px 0; color: var(--primary-color);"></h4>
+                    <input type="hidden" id="quick-item-name">
+
+                    <div class="size-input" style="margin-bottom: 10px;">
+                        <input id="quick-quantity" type="number" placeholder="Quantity" step="0.01" min="0"
+                            style="width: 60px;" oninput="updateQuickAddHeader()">
+                        <div style="position: relative; flex: 1;">
+                            <input id="quick-unit" type="text" placeholder="Unit" style="width: 100%;">
+                        </div>
+                        <input id="quick-rate" type="number" placeholder="Rate" step="0.01" min="0"
+                            style="width: 100px;">
+                    </div>
+
+                    <button onclick="processQuickAdd()" class="btn-apply" style="width: 100%;">Add Item</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="code-display-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div class="modal-header">
+                <h3 id="code-modal-title">Code View</h3>
+                <span class="close" onclick="closeCodeModal()">×</span>
+            </div>
+            <div class="modal-body">
+
+                <div id="printable-code-card" style="background: white; padding: 20px; border-radius: 8px;">
+
+                    <h2 id="code-product-name-display"
+                        style="margin: 0 0 10px 0; color: #333; font-size: 1.4em; word-wrap: break-word;"></h2>
+
+                    <div id="code-canvas-container"
+                        style="margin: 10px auto; display: flex; justify-content: center; align-items: center; min-height: 100px;">
+                    </div>
+
+                    <div id="code-text-display"
+                        style="font-family: monospace; font-size: 1.2em; font-weight: bold; margin-top: 10px; color: #000;">
+                    </div>
+                </div>
+
+                <div style="padding-top: 20px; border-top: 1px solid #eee; margin-top: 10px;">
+                    <button onclick="downloadCodeImage()" class="btn-apply"
+                        style="width: 100%; display: flex; justify-content: center; gap: 10px;">
+                        <span class="material-icons">download</span> Download High Res Image
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="share-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div class="modal-header">
+                <h3>Share Options</h3>
+                <span class="close" onclick="closeShareModal()">×</span>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 20px; color: #666;">Choose how you want to share:</p>
+
+                <button onclick="handleSharePDF()" class="btn-share"
+                    style="width: 100%; justify-content: center; margin-bottom: 15px; padding: 12px; font-size: 16px;">
+                    <span class="material-icons">picture_as_pdf</span> Share Bill PDF
+                </button>
+
+                <button onclick="handleSayHi()" class="btn-share"
+                    style="width: 100%; justify-content: center;padding: 12px; font-size: 16px;">
+                    <span class="material-icons">chat</span> Say Hi on WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="ocr-modal" style="display: none;">
+        <div id="ocr-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span class="material-icons">document_scanner</span>
+                <span>Smart Data Extractor</span>
+            </div>
+            <div class="window-controls">
+                <span class="material-icons" onclick="openOCRPopOut()" title="Open in New Window">open_in_new</span>
+                <span class="material-icons" onclick="closeOCRModal()" title="close">close</span>
+            </div>
+        </div>
+
+        <div id="ocr-body">
+            <div class="ocr-toolbar">
+                <label class="ocr-btn-upload" title="Upload File">
+                    <span class="material-icons">upload_file</span> Open
+                    <input type="file" id="ocr-file-input" hidden accept="image/*,.pdf,.docx,.xlsx,.xls,.csv"
+                        onchange="handleOCRFile(this)">
+                </label>
+                <div class="divider-v"></div>
+                <button onclick="ocrProcess('full')" title="Scan Full Document"><span
+                        class="material-icons">fullscreen</span> Full Scan</button>
+                <button onclick="ocrProcess('crop')" id="btn-crop-scan" disabled title="Scan Selected Area"><span
+                        class="material-icons">crop</span> Scan Crop</button>
+                <div class="divider-v"></div>
+                <div style="position: relative;">
+                    <button onclick="toggleFilterMenu()" id="btn-filter" disabled title="Image Filters">
+                        <span class="material-icons">tune</span> Enhance
+                    </button>
+
+                    <div id="filter-menu" class="filter-menu">
+                        <div class="filter-group">
+                            <label>Binarize (Threshold) <span id="val-threshold">128</span></label>
+                            <input type="range" id="slider-threshold" min="0" max="255" value="128"
+                                oninput="updateImageFilters()">
+                        </div>
+                        <div class="filter-group">
+                            <label>Contrast <span id="val-contrast">0</span></label>
+                            <input type="range" id="slider-contrast" min="-100" max="100" value="0"
+                                oninput="updateImageFilters()">
+                        </div>
+                        <div style="display:flex; justify-content: space-between; margin-top:5px;">
+                            <button onclick="resetFilters()" class="btn-tiny">Reset</button>
+                            <button onclick="toggleFilterMenu()" class="btn-tiny primary">Done</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divider-v"></div>
+                <button onclick="toggleOCRWorkbench()" title="Toggle Workbench View"><span
+                        class="material-icons">view_sidebar</span> View</button>
+                <div class="divider-v"></div>
+                <button id="btn-ocr-replace-mode" onclick="toggleOCRReplaceMode()" title="Toggle Replace/Append Mode"
+                    style="background-color: #e8f5e9; color: #27ae60; border-color: #27ae60;">
+                    <span class="material-icons">find_replace</span> Replace: ON
+                </button>
+            </div>
+
+            <div id="ocr-progress-container">
+                <div id="ocr-progress-bar"></div>
+                <span id="ocr-status-text">Ready</span>
+            </div>
+
+            <div class="ocr-workspace">
+                <div id="ocr-workbench">
+                    <div id="ocr-empty-state">
+                        <span class="material-icons" style="font-size: 48px; color: #ccc;">cloud_upload</span>
+                        <p>Drag & Drop Bill Here</p>
+                        <small>Supports: IMG, PDF, DOCX, XLS</small>
+                    </div>
+                    <div id="ocr-canvas-container" style="display:none;">
+                        <img id="ocr-source-image" src="" alt="Source">
+                    </div>
+                </div>
+
+                <div id="ocr-results-panel">
+                    <div id="ocr-smart-chips"></div>
+
+                    <div class="result-header">
+                        <span>Extracted Text</span>
+                        <button onclick="copyOCRText()" class="icon-btn-tiny" title="Copy All"><span
+                                class="material-icons" style="font-size:14px">content_copy</span></button>
+                    </div>
+                    <textarea id="ocr-result" placeholder="Text will appear here..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="resize-handle n-resize"></div>
+        <div class="resize-handle e-resize"></div>
+        <div class="resize-handle s-resize"></div>
+        <div class="resize-handle w-resize"></div>
+        <div class="resize-handle ne-resize"></div>
+        <div class="resize-handle se-resize"></div>
+        <div class="resize-handle sw-resize"></div>
+        <div class="resize-handle nw-resize"></div>
+    </div>
+
+    <div id="ocr-context-menu" class="context-menu">
+        <div class="menu-header">Fill Field:</div>
+        <div class="menu-item" onclick="magicFill('custName')">Customer Name</div>
+        <div class="menu-item" onclick="magicFill('billNo')">Bill / Invoice No</div>
+        <div class="menu-item" onclick="magicFill('billDate')">Bill Date</div>
+        <div class="menu-item" onclick="magicFill('custGSTIN')">GSTIN</div>
+        <div class="menu-item" onclick="magicFill('custPhone')">Phone</div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" onclick="magicFill('copy')">Copy to Clipboard</div>
+    </div>
+
+    <div id="magic-menu" class="magic-menu" style="display: none;">
+        <div class="magic-item">
+            <span><i class="material-icons">person</i> Customer</span>
+            <span class="material-icons arrow">chevron_right</span>
+            <div class="magic-sub-menu">
+                <div class="magic-item">
+                    <span>Regular Bill</span>
+                    <span class="material-icons arrow">chevron_right</span>
+                    <div class="magic-sub-menu">
+                        <div class="magic-item" onclick="magicFillField('custName')">Name</div>
+                        <div class="magic-item" onclick="magicFillField('custAddr')">Address</div>
+                        <div class="magic-item" onclick="magicFillField('custPhone')">Phone</div>
+                        <div class="magic-item" onclick="magicFillField('custGSTIN')">GSTIN</div>
+                        <div class="magic-item" onclick="magicFillField('billNo')">Bill No</div>
+                        <div class="magic-item" onclick="magicFillField('billDate')">Date</div>
+                    </div>
+                </div>
+                <div class="magic-item">
+                    <span>GST: Bill To</span>
+                    <span class="material-icons arrow">chevron_right</span>
+                    <div class="magic-sub-menu">
+                        <div class="magic-item" onclick="magicFillField('consignee-name')">Name</div>
+                        <div class="magic-item" onclick="magicFillField('consignee-address')">Address</div>
+                        <div class="magic-item" onclick="magicFillField('consignee-gst')">GSTIN</div>
+                        <div class="magic-item" onclick="magicFillField('consignee-state')">State</div>
+                        <div class="magic-item" onclick="magicFillField('consignee-code')">State Code</div>
+                        <div class="magic-item" onclick="magicFillField('consignee-contact')">Contact</div>
+                    </div>
+                </div>
+                <div class="magic-item">
+                    <span>GST: Ship To</span>
+                    <span class="material-icons arrow">chevron_right</span>
+                    <div class="magic-sub-menu">
+                        <div class="magic-item" onclick="magicFillField('buyer-name')">Name</div>
+                        <div class="magic-item" onclick="magicFillField('buyer-address')">Address</div>
+                        <div class="magic-item" onclick="magicFillField('buyer-gst')">GSTIN</div>
+                        <div class="magic-item" onclick="magicFillField('buyer-state')">State</div>
+                        <div class="magic-item" onclick="magicFillField('buyer-code')">State Code</div>
+                        <div class="magic-item" onclick="magicFillField('buyer-contact')">Contact</div>
+                        <div class="magic-item" onclick="magicFillField('place-of-supply')">POS</div>
+                    </div>
+                </div>
+                <div class="magic-item">
+                    <span>GST Invoice Details</span>
+                    <span class="material-icons arrow">chevron_right</span>
+                    <div class="magic-sub-menu">
+                        <div class="magic-item" onclick="magicFillField('invoice-no')">Invoice No</div>
+                        <div class="magic-item" onclick="magicFillField('invoice-date')">Invoice Date</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="magic-item">
+            <span><i class="material-icons">store</i> Purchase / Vendor</span>
+            <span class="material-icons arrow">chevron_right</span>
+            <div class="magic-sub-menu">
+                <div class="magic-item" onclick="magicFillField('vendorName')">Vendor Name</div>
+                <div class="magic-item" onclick="magicFillField('vendorAddr')">Address</div>
+                <div class="magic-item" onclick="magicFillField('vendorInvoiceNo')">Invoice No</div>
+                <div class="magic-item" onclick="magicFillField('vendorPhone')">Contact No</div>
+                <div class="magic-item" onclick="magicFillField('vendorGSTIN')">GSTIN</div>
+                <div class="magic-item" onclick="magicFillField('vendorEmail')">Email</div>
+            </div>
+        </div>
+
+        <div class="magic-divider"></div>
+
+        <div class="magic-item">
+            <span><i class="material-icons">edit</i> Input Mode</span>
+            <span class="material-icons arrow">chevron_right</span>
+            <div class="magic-sub-menu">
+                <div class="magic-item" onclick="magicFillField('itemNameManual')">Item Name</div>
+                <div class="magic-item" onclick="magicFillField('quantityManual')">Quantity</div>
+                <div class="magic-item" onclick="magicFillField('selectUnit')">Unit</div>
+                <div class="magic-item" onclick="magicFillField('rateManual')">Rate</div>
+                <div class="magic-item" onclick="magicFillField('itemNotesManual')">Notes</div>
+                <div class="magic-item" onclick="magicFillField('hsnCodeManual')">HSN/SAC</div>
+                <div class="magic-item" onclick="magicFillField('productCodeManual')">Product Code</div>
+
+                <div class="magic-divider"></div>
+
+                <div class="magic-item">
+                    <span>Dimensions</span>
+                    <span class="material-icons arrow">chevron_right</span>
+                    <div class="magic-sub-menu">
+                        <div class="magic-item">
+                            <span>Type</span>
+                            <span class="material-icons arrow">chevron_right</span>
+                            <div class="magic-sub-menu">
+                                <div class="magic-item" onclick="magicSelect('dimensionType', 'none')">None</div>
+                                <div class="magic-item" onclick="magicSelect('dimensionType', 'length')">Length</div>
+                                <div class="magic-item" onclick="magicSelect('dimensionType', 'widthXheight')">W x H
+                                </div>
+                                <div class="magic-item" onclick="magicSelect('dimensionType', 'widthXheightXdepth')">W x
+                                    H x D</div>
+                                <div class="magic-item" onclick="magicSelect('dimensionType', 'dozen')">Dozen</div>
+                                <div class="magic-item" onclick="magicSelect('dimensionType', 'lengthXwidthXheight')">L
+                                    x W x H</div>
+                                <div class="magic-item" onclick="magicSelect('dimensionType', 'widthXdepth')">W x D
+                                </div>
+                                <div class="magic-item" onclick="magicSelect('dimensionType', 'lengthXheightXdepth')">L
+                                    x H x D</div>
+                                <div class="magic-item" onclick="magicSelect('dimensionType', 'lengthXdepth')">L x D
+                                </div>
+                                <div class="magic-item" onclick="magicSelect('dimensionType', 'lengthXheight')">L x H
+                                </div>
+                                <div class="magic-item" onclick="magicSelect('dimensionType', 'lengthXwidth')">L x W
+                                </div>
+                                <div class="magic-item" onclick="magicSelect('dimensionType', 'lengthXwidthXdepth')">L x
+                                    W x D</div>
+                            </div>
+                        </div>
+
+                        <div class="magic-item">
+                            <span>Convert</span>
+                            <span class="material-icons arrow">chevron_right</span>
+                            <div class="magic-sub-menu">
+                                <div class="magic-item" onclick="magicSelect('convertUnit', 'none')">None</div>
+                                <div class="magic-item" onclick="magicSelect('convertUnit', 'ft')">ft</div>
+                                <div class="magic-item" onclick="magicSelect('convertUnit', 'inch')">inch</div>
+                                <div class="magic-item" onclick="magicSelect('convertUnit', 'mtr')">mtr</div>
+                                <div class="magic-item" onclick="magicSelect('convertUnit', 'cm')">cm</div>
+                                <div class="magic-item" onclick="magicSelect('convertUnit', 'mm')">mm</div>
+                            </div>
+                        </div>
+
+                        <div class="magic-divider"></div>
+                        <div class="magic-item" onclick="magicFillField('dimension1')">Value 1 (L/W)</div>
+                        <div class="magic-item" onclick="magicFillField('dimension2')">Value 2 (W/H)</div>
+                        <div class="magic-item" onclick="magicFillField('dimension3')">Value 3 (H/D)</div>
+                    </div>
+                </div>
+
+                <div class="magic-item">
+                    <span>Discount</span>
+                    <span class="material-icons arrow">chevron_right</span>
+                    <div class="magic-sub-menu">
+                        <div class="magic-item">
+                            <span>Type</span>
+                            <span class="material-icons arrow">chevron_right</span>
+                            <div class="magic-sub-menu">
+                                <div class="magic-item" onclick="magicSelect('discountType', 'none')">None</div>
+                                <div class="magic-item" onclick="magicSelect('discountType', 'percent_per_unit')">% /
+                                    Unit</div>
+                                <div class="magic-item" onclick="magicSelect('discountType', 'amt_per_unit')">Amt / Unit
+                                </div>
+                                <div class="magic-item" onclick="magicSelect('discountType', 'percent_on_amount')">% on
+                                    Total</div>
+                                <div class="magic-item" onclick="magicSelect('discountType', 'amt_on_amount')">Amt on
+                                    Total</div>
+                            </div>
+                        </div>
+                        <div class="magic-item" onclick="magicFillField('discountValue')">Discount Value</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="magic-divider"></div>
+
+        <div class="magic-item">
+            <span><i class="material-icons">inventory_2</i> Add Item Modal</span>
+            <span class="material-icons arrow">chevron_right</span>
+            <div class="magic-sub-menu">
+                <div class="magic-item" onclick="magicFillField('saved-item-name')">Item Name</div>
+                <div class="magic-item" onclick="magicFillField('saved-category')">Category</div>
+                <div class="magic-item" onclick="magicFillField('saved-brand-name')">Brand Name</div>
+                <div class="magic-item" onclick="magicFillField('saved-vendor-name')">Vendor Name</div>
+                <div class="magic-divider"></div>
+                <div class="magic-item" onclick="magicFillField('saved-sale-price')">Sale Price</div>
+                <div class="magic-item" onclick="magicFillField('saved-mrp')">MRP</div>
+                <div class="magic-item" onclick="magicFillField('saved-purchase-rate')">Purchase Rate</div>
+                <div class="magic-item" onclick="magicFillField('saved-stock-quantity')">Stock Qty</div>
+                <div class="magic-item" onclick="magicFillField('saved-min-stock')">Min Stock</div>
+                <div class="magic-divider"></div>
+                <div class="magic-item" onclick="magicFillField('saved-hsn-code')">HSN Code</div>
+                <div class="magic-item" onclick="magicFillField('saved-barcode')">Barcode</div>
+                <div class="magic-item" onclick="magicFillField('saved-product-code')">Product Code</div>
+                <div class="magic-item" onclick="magicFillField('saved-section-code')">Section Code</div>
+            </div>
+        </div>
+
+        <div class="magic-divider"></div>
+
+        <div class="magic-item" onclick="magicOperation('copy')">
+            <span><i class="material-icons">content_copy</i> Copy Selection</span>
+        </div>
+    </div>
+
+    <div id="manage-vendors-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Manage Vendors</h3>
+                <span class="close" onclick="closeManageVendorsModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="search-add-bar">
+                    <input type="text" id="vendor-search" placeholder="Search vendors..." oninput="searchVendors()">
+                    <button onclick="openAddVendorModal()" class="btn-apply">Add New Vendor</button>
+                </div>
+                <div id="vendors-list" class="items-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="vendor-bills-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Vendor Bills (Purchase History)</h3>
+                <span class="close" onclick="closeVendorSavedBillsModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="search-add-bar">
+                    <input type="text" id="vendor-bills-search" placeholder="Search purchase bills..."
+                        oninput="searchVendorBills()">
+                </div>
+
+                <div class="mode-toggle" style="margin: 15px 0; display: flex; align-items: center; gap: 10px;">
+                    <span>Regular Bills</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="vendor-bills-mode-toggle" onchange="toggleVendorBillsMode()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span>GST Bills</span>
+                </div>
+
+                <div id="vendor-bills-list" class="items-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-vendor-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 id="add-vendor-modal-title">Add New Vendor</h3>
+                <span class="close" onclick="closeAddVendorModal()">×</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Vendor Name:</label>
+                    <input type="text" id="saved-vendor-name" placeholder="Enter Vendor Name">
+                </div>
+                <div class="form-group">
+                    <label>Address:</label>
+                    <textarea id="saved-vendor-address" rows="2" placeholder="Enter Address"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Phone:</label>
+                    <input type="text" id="saved-vendor-phone" placeholder="Contact No">
+                </div>
+                <div class="form-group">
+                    <label>GSTIN:</label>
+                    <input type="text" id="saved-vendor-gstin" placeholder="GSTIN">
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="text" id="saved-vendor-email" placeholder="Email Address">
+                </div>
+                <div class="form-actions">
+                    <button onclick="closeAddVendorModal()" class="btn-cancel">Cancel</button>
+                    <button onclick="saveVendor()" class="btn-apply" id="save-vendor-btn">Save Vendor</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="file-viewer-modal" class="modal">
+        <div class="modal-content" style="max-width: 900px; height: 90vh; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <h3>Bill Attachment</h3>
+                <span class="close" onclick="closeFileViewerModal()">&times;</span>
+            </div>
+            <div class="modal-body"
+                style="flex: 1; padding: 0; background: #333; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+                <img id="file-viewer-img" style="max-width: 100%; max-height: 100%; display: none;">
+                <iframe id="file-viewer-pdf" style="width: 100%; height: 100%; border: none; display: none;"></iframe>
+                <div id="file-viewer-msg" style="color: white; display: none;">No preview available</div>
+            </div>
+        </div>
+    </div>
+    <!-- DASHBOARD -->
+    <div id="dashboard-overlay" class="dashboard-overlay" style="display: none;">
+        <div class="dashboard-header">
+            <div class="header-left">
+                <h2>Business Overview</h2>
+                <p id="dashboard-date-range">Last 30 Days</p>
+            </div>
+            <div class="header-right">
+                <select id="dashboard-filter" onchange="refreshDashboard()">
+                    <option value="7">Last 7 Days</option>
+                    <option value="30" selected>Last 30 Days</option>
+                    <option value="90">Last Quarter</option>
+                    <option value="365">Last Year</option>
+                </select>
+                <button onclick="closeBusinessDashboard()" class="icon-btn-close"><span
+                        class="material-icons">close</span></button>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <div class="kpi-grid">
+                <div class="kpi-card green">
+                    <div class="kpi-icon"><span class="material-icons">trending_up</span></div>
+                    <div class="kpi-info">
+                        <span class="kpi-label">Total Sales</span>
+                        <h3 id="kpi-total-sales">₹0.00</h3>
+                        <small class="kpi-trend" id="trend-sales">+0% vs prev</small>
+                    </div>
+                </div>
+                <div class="kpi-card blue">
+                    <div class="kpi-icon"><span class="material-icons">account_balance_wallet</span></div>
+                    <div class="kpi-info">
+                        <span class="kpi-label">Est. Profit</span>
+                        <h3 id="kpi-profit">₹0.00</h3>
+                        <small class="kpi-trend" id="trend-profit">Margin: 0%</small>
+                    </div>
+                </div>
+                <div class="kpi-card red">
+                    <div class="kpi-icon"><span class="material-icons">pending_actions</span></div>
+                    <div class="kpi-info">
+                        <span class="kpi-label">Outstanding</span>
+                        <h3 id="kpi-outstanding">₹0.00</h3>
+                        <small class="kpi-trend">Receivables</small>
+                    </div>
+                </div>
+                <div class="kpi-card orange">
+                    <div class="kpi-icon"><span class="material-icons">shopping_cart</span></div>
+                    <div class="kpi-info">
+                        <span class="kpi-label">Purchases</span>
+                        <h3 id="kpi-expenses">₹0.00</h3>
+                        <small class="kpi-trend" id="trend-expenses">Expense</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-analytics-grid">
+                <div class="chart-section">
+                    <div class="section-header">
+                        <h4>Business Analytics</h4>
+                        <div class="chart-toggles">
+                            <button class="chart-btn active" onclick="toggleChartType('sales')">Sales</button>
+                            <button class="chart-btn" onclick="toggleChartType('profit')">Profit</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="mainBusinessChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="lists-section">
+                    <div class="action-list-card">
+                        <div class="list-header">
+                            <span class="material-icons" style="color: #e74c3c;">warning</span>
+                            <h4>Low Stock Alert</h4>
+                        </div>
+                        <div id="dash-low-stock-list" class="scrollable-list">
+                        </div>
+                    </div>
+
+                    <div class="action-list-card">
+                        <div class="list-header">
+                            <span class="material-icons" style="color: #3498db;">history</span>
+                            <h4>Recent Activity</h4>
+                        </div>
+                        <div id="dash-recent-list" class="scrollable-list">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="expense-management-modal" class="modal">
+        <div class="modal-content"
+            style="width: 100%; height: 100%; max-width: 100%; margin: 0; border-radius: 0; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <h3>Expense Manager</h3>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="exportExpensesPDF()" class="btn-primary simple" style="background: #e67e22;">
+                        <span class="material-icons">picture_as_pdf</span> Export Report
+                    </button>
+                    <button onclick="openAddExpenseModal()" class="btn-primary">
+                        <span class="material-icons">add</span> Add Expense
+                    </button>
+                    <span class="close" onclick="closeExpenseModal()">&times;</span>
+                </div>
+            </div>
+            <div class="modal-body" style="background: #f4f6f9; padding: 20px; overflow-y: auto;">
+
+                <div class="expense-summary-grid">
+                    <div class="expense-card total">
+                        <div class="card-icon"><span class="material-icons">payments</span></div>
+                        <div class="card-data">
+                            <small>Total (This Month)</small>
+                            <h3 id="exp-summary-total">₹0.00</h3>
+                        </div>
+                    </div>
+                    <div class="expense-card today">
+                        <div class="card-icon"><span class="material-icons">today</span></div>
+                        <div class="card-data">
+                            <small>Today's Expense</small>
+                            <h3 id="exp-summary-today">₹0.00</h3>
+                        </div>
+                    </div>
+                    <div class="expense-card category">
+                        <div class="card-icon"><span class="material-icons">pie_chart</span></div>
+                        <div class="card-data">
+                            <small>Top Category</small>
+                            <h3 id="exp-summary-category">-</h3>
+                        </div>
+                    </div>
+                    <div class="expense-card last">
+                        <div class="card-icon"><span class="material-icons">history</span></div>
+                        <div class="card-data">
+                            <small>Last Added</small>
+                            <h3 id="exp-summary-last">₹0.00</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expense-dashboard-split">
+                    <div class="expense-main-panel">
+                        <div class="expense-filter-bar">
+                            <div class="filter-row">
+                                <div class="filter-group" style="flex: 2;"> <input type="text" id="exp-search"
+                                        placeholder="Search title, ref..." oninput="filterExpenses()">
+                                </div>
+                                <div class="filter-group" style="flex: 1;">
+                                    <select id="exp-filter-category" onchange="filterExpenses()">
+                                        <option value="all">All Categories</option>
+                                        <option value="Rent">Rent</option>
+                                        <option value="Electricity">Electricity</option>
+                                        <option value="Salary">Salary</option>
+                                        <option value="Transport">Transport</option>
+                                        <option value="Food">Food</option>
+                                        <option value="Marketing">Marketing</option>
+                                        <option value="Maintenance">Maintenance</option>
+                                        <option value="Office Supplies">Office Supplies</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group" style="flex: 1;">
+                                    <select id="exp-filter-mode" onchange="filterExpenses()">
+                                        <option value="all">All Modes</option>
+                                        <option value="Cash">Cash</option>
+                                        <option value="UPI">UPI</option>
+                                        <option value="Bank Transfer">Bank Transfer</option>
+                                        <option value="Card">Card</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="filter-row">
+                                <div class="filter-group date-group" style="flex: 2;">
+                                    <input type="date" id="exp-date-from" onchange="filterExpenses()">
+                                    <span>to</span>
+                                    <input type="date" id="exp-date-to" onchange="filterExpenses()">
+                                </div>
+                                <div class="filter-group" style="flex: 1;">
+                                    <select id="exp-sort" onchange="filterExpenses()">
+                                        <option value="date-desc">Date: Newest</option>
+                                        <option value="date-asc">Date: Oldest</option>
+                                        <option value="amount-desc">Amt: High to Low</option>
+                                        <option value="amount-asc">Amt: Low to High</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="expense-table-wrapper">
+                            <table class="unified-ledger-table" id="expense-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Title / Ref</th>
+                                        <th>Category</th>
+                                        <th>Mode</th>
+                                        <th>Amount</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expense-list-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="expense-side-panel">
+                        <h4>Category Analysis</h4>
+                        <div id="expense-chart-container" class="chart-container-div">
+                        </div>
+                        <div id="expense-chart-legend" class="chart-legend"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-expense-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 id="expense-modal-title">Add New Expense</h3>
+                <span class="close" onclick="closeAddExpenseModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="exp-id">
+                <div class="form-group">
+                    <label>Expense Title <span style="color:red">*</span></label>
+                    <input type="text" id="exp-title" placeholder="e.g. Office Rent Feb">
+                </div>
+
+                <div class="form-row" style="display:flex; gap:15px;">
+                    <div class="form-group" style="flex:1">
+                        <label>Amount (₹) <span style="color:red">*</span></label>
+                        <input type="number" id="exp-amount" placeholder="0.00" min="0" step="0.01">
+                    </div>
+                    <div class="form-group" style="flex:1">
+                        <label>Date <span style="color:red">*</span></label>
+                        <input type="date" id="exp-date">
+                    </div>
+                </div>
+
+                <div class="form-row" style="display:flex; gap:15px;">
+                    <div class="form-group" style="flex:1">
+                        <label>Category <span style="color:red">*</span></label>
+                        <div style="display: flex; gap: 5px;">
+                            <select id="exp-category" style="flex: 1;">
+                                <option value="">Select Category</option>
+                            </select>
+                            <button type="button" onclick="addNewExpenseCategory()" class="icon-btn-square"
+                                style="background: var(--primary-color); color: white; border-radius: 4px; border:none; width: 35px; cursor: pointer;"
+                                title="Add New Category">
+                                <span class="material-icons">add</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group" style="flex:1">
+                        <label>Payment Mode <span style="color:red">*</span></label>
+                        <select id="exp-payment-mode">
+                            <option value="Cash">Cash</option>
+                            <option value="UPI">UPI</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="Card">Card</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Reference / Bill No (Optional)</label>
+                    <input type="text" id="exp-reference" placeholder="e.g. BILL-123">
+                </div>
+
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="exp-notes" rows="2" placeholder="Additional details..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Attach Bill Image (Optional)</label>
+                    <input type="file" id="exp-image" accept="image/*" onchange="handleExpenseImage(this)">
+                    <div id="exp-image-preview" class="img-preview-box" style="margin-top:5px; display:none;">
+                    </div>
+                    <button type="button" id="btn-remove-exp-img" onclick="removeExpenseImage()" class="btn-cancel"
+                        style="display:none; margin-top:5px; padding:4px 8px; font-size:12px;">Remove Image</button>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeAddExpenseModal()" class="btn-cancel">Cancel</button>
+                <button onclick="saveExpense()" class="btn-apply" id="btn-save-expense">Save Expense</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="add-category-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>Add Category</h3>
+                <span class="close" onclick="closeAddCategoryModal()">×</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>New Category Name:</label>
+                    <input type="text" id="new-category-name" placeholder="Enter category name"
+                        onkeypress="handleCategoryEnter(event)">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeAddCategoryModal()" class="btn-cancel">Cancel</button>
+                <button onclick="saveNewCategory()" class="btn-apply">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="personalize-modal" class="modal">
+        <div class="modal-content"
+            style="max-width: 850px; height: 85vh; padding: 0; overflow: hidden; display: flex; flex-direction: column; background: rgba(243, 243, 243, 0.95); backdrop-filter: blur(20px);">
+
+            <div class="window-header"
+                style="padding: 15px 24px; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;">
+                <div class="window-title" style="font-weight: 600; color: #202020;"><i class="fas fa-cog"></i>
+                    Personalization</div>
+                <span class="close" onclick="closePersonalizeModal()" style="color: #202020;">&times;</span>
+            </div>
+
+            <div class="window-content"
+                style="flex: 1; overflow-y: auto; padding: 24px 32px; display: flex; flex-direction: column; gap: 20px;">
+
+                <div class="preview-container" id="pzn-previewContainer">
+                    <div class="preview-screen" id="pzn-previewScreen"></div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="settings-item">
+                        <div class="item-label">
+                            <div class="item-text">
+                                <h4>Background</h4>
+                            </div>
+                        </div>
+                        <div class="item-control">
+                            <select id="pzn-bgTypeSelect" onchange="handlePznTypeChange()">
+                                <option value="solid">Solid color</option>
+                                <option value="picture">Picture</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="pzn-pictureOptions" class="settings-item hidden">
+                        <div class="item-label">
+                            <div class="item-text">
+                                <h4>Choose a photo</h4>
+                            </div>
+                        </div>
+                        <div class="item-control">
+                            <label class="browse-btn">
+                                Browse photos
+                                <input type="file" id="pzn-imageUpload" accept="image/*" style="display: none;"
+                                    onchange="handlePznImageUpload(this)">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="pzn-fitOptions" class="settings-item hidden">
+                        <div class="item-label">
+                            <div class="item-text">
+                                <h4>Choose a fit</h4>
+                            </div>
+                        </div>
+                        <div class="item-control">
+                            <select id="pzn-fitSelect" onchange="updatePznPreview()">
+                                <option value="cover">Fill</option>
+                                <option value="contain">Fit</option>
+                                <option value="100% 100%">Stretch</option>
+                                <option value="repeat">Tile</option>
+                                <option value="auto">Center</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="pzn-solidOptions" class="settings-item">
+                        <div class="item-label">
+                            <div class="item-text">
+                                <h4>Choose your background color</h4>
+                            </div>
+                        </div>
+                        <div class="item-control">
+                            <div class="color-grid" id="pzn-colorGrid">
+                                <div class="custom-color-wrapper" title="Custom">
+                                    <input type="color" id="pzn-customColorPicker" value="#f9f9f9"
+                                        oninput="handlePznColorInput(this)">
+                                    <i class="fas fa-plus"
+                                        style="position: absolute; top:50%; left:50%; transform: translate(-50%,-50%); color: #666; pointer-events: none; font-size: 10px;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="settings-item">
+                        <div class="item-label">
+                            <i class="fas fa-sun"></i>
+                            <div class="item-text">
+                                <h4>Brightness</h4>
+                            </div>
+                        </div>
+                        <div class="item-control win-slider-container">
+                            <input type="range" min="0" max="200" value="100" id="pzn-brightnessSlider"
+                                oninput="updatePznPreview()">
+                            <span class="slider-val" id="pzn-brightnessVal">100%</span>
+                        </div>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="item-label">
+                            <i class="fas fa-adjust"></i>
+                            <div class="item-text">
+                                <h4>Contrast</h4>
+                            </div>
+                        </div>
+                        <div class="item-control win-slider-container">
+                            <input type="range" min="0" max="200" value="100" id="pzn-contrastSlider"
+                                oninput="updatePznPreview()">
+                            <span class="slider-val" id="pzn-contrastVal">100%</span>
+                        </div>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="item-label">
+                            <i class="fas fa-tint"></i>
+                            <div class="item-text">
+                                <h4>Blur</h4>
+                            </div>
+                        </div>
+                        <div class="item-control win-slider-container">
+                            <input type="range" min="0" max="50" value="0" id="pzn-blurSlider"
+                                oninput="updatePznPreview()">
+                            <span class="slider-val" id="pzn-blurVal">0px</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="window-footer"
+                style="padding: 20px 32px; background: rgba(243, 243, 243, 0.8); border-top: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;">
+                <button class="btn btn-danger" onclick="resetPersonalization()">Reset to Default</button>
+                <div class="footer-actions">
+                    <button class="btn btn-secondary" onclick="closePersonalizeModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="saveAndApplyPersonalization()">Apply</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="regular-details-modal" class="modal">
+        <div class="modal-content" style="max-width: 750px;">
+            <div class="modal-header">
+                <h3>Regular Bill Details</h3>
+                <span class="close" onclick="closeRegularModal()">×</span>
+            </div>
+            <div class="modal-body" style="max-height: 70vh;overflow: auto;">
+
+                <div class="form-group-row"
+                    style="display: flex; gap: 15px; margin-bottom: 20px; align-items: flex-end;">
+                    <div style="flex: 1;">
+                        <label>Bill Type</label>
+                        <select id="reg-modal-type-select" onchange="handleRegTypeChange()"
+                            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="Estimate">Estimate</option>
+                            <option value="Quotation">Quotation</option>
+                            <option value="Purchase Order">Purchase Order</option>
+                            <option value="Work Order">Work Order</option>
+                            <option value="Custom">Custom...</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Prefix</label>
+                        <div class="input-group-lock">
+                            <input type="text" id="reg-modal-prefix" placeholder="EST" disabled>
+                            <button id="reg-prefix-lock-btn" onclick="toggleRegPrefixLock()" type="button"
+                                title="Toggle Edit">
+                                <span class="material-icons">lock</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div style="flex: 0 0 100px;">
+                        <button id="reg-save-custom-btn" onclick="saveRegCustomType()" class="btn-primary"
+                            style="width: 100%; display: none; height: 38px;">Save Type</button>
+                    </div>
+                </div>
+
+                <div id="reg-custom-type-panel"
+                    style="display: none; background: #f0f4f8; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="reg-custom-name-input" placeholder="New Type Name (e.g. Proforma)">
+                        <input type="text" id="reg-custom-prefix-input" placeholder="Default Prefix (e.g. PI)">
+                    </div>
+                </div>
+
+                <div class="form-group-row" style="display: flex; gap: 15px; margin-bottom: 20px;">
+                    <div style="flex: 1;">
+                        <label>Invoice No</label>
+                        <input type="text" id="reg-modal-invoice-no" oninput="syncRegularData('modal')"
+                            placeholder="001">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Date</label>
+                        <input type="text" id="reg-modal-date" oninput="syncRegularData('modal')"
+                            placeholder="DD-MM-YYYY">
+                    </div>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h3>Customer Info</h3>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>Select Detail Format:</label>
+                    <select id="reg-modal-cust-view-select" onchange="handleRegViewChange()"
+                        style="width: 100%; padding: 8px;">
+                        <option value="simple" selected>Customer Details (Simple)</option>
+                        <option value="bill_to">Bill To</option>
+                        <option value="both">Bill To & Ship To</option>
+                    </select>
+                </div>
+
+                <div id="reg-modal-simple-section" style="display: block;">
+                    <div class="form-group">
+                        <label>Customer Name</label>
+                        <input type="text" id="reg-modal-simple-name" oninput="syncRegularData('modal')"
+                            placeholder="Enter Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone / Contact</label>
+                        <input type="text" id="reg-modal-simple-phone" oninput="syncRegularData('modal')"
+                            placeholder="Enter Contact No">
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <textarea id="reg-modal-simple-addr" oninput="syncRegularData('modal')"
+                            placeholder="Enter Address" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <div id="reg-modal-advanced-section" style="display: none;">
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+
+                        <div style="width: 100%;">
+                            <h4 class="column-header">Bill To</h4>
+                            <input type="text" id="reg-modal-bill-name" placeholder="Name" class="mb-2">
+                            <textarea id="reg-modal-bill-addr" placeholder="Address" rows="2" class="mb-2"></textarea>
+                            <input type="text" id="reg-modal-bill-gst" placeholder="GSTIN" class="mb-2">
+                            <input type="text" id="reg-modal-bill-phone" placeholder="Contact No" class="mb-2">
+                            <div style="display: flex; gap: 5px;">
+                                <input type="text" id="reg-modal-bill-state" value="Maharashtra" placeholder="State"
+                                    style="flex: 2;">
+                                <input type="text" id="reg-modal-bill-code" value="27" placeholder="Code"
+                                    style="flex: 1;">
+                            </div>
+                        </div>
+
+                        <div id="reg-modal-ship-col" style="width: 100%; display: block;">
+                            <h4 class="column-header">
+                                Ship To
+                                <span class="material-icons copy-icon" onclick="copyRegBillToShip()"
+                                    title="Copy from Bill To">content_copy</span>
+                            </h4>
+                            <input type="text" id="reg-modal-ship-name" placeholder="Name" class="mb-2">
+                            <textarea id="reg-modal-ship-addr" placeholder="Address" rows="2" class="mb-2"></textarea>
+                            <input type="text" id="reg-modal-ship-gst" placeholder="GSTIN" class="mb-2">
+                            <input type="text" id="reg-modal-ship-phone" placeholder="Contact No" class="mb-2">
+                            <div style="display: flex; gap: 5px;">
+                                <input type="text" id="reg-modal-ship-state" value="Maharashtra" placeholder="State"
+                                    style="flex: 2;">
+                                <input type="text" id="reg-modal-ship-code" value="27" placeholder="Code"
+                                    style="flex: 1;">
+                            </div>
+                            <input type="text" id="reg-modal-ship-pos" value="Maharashtra" placeholder="Place of Supply"
+                                class="mt-2">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button onclick="clearRegularModal()" class="btn-clear">Clear</button>
+                <button onclick="closeRegularModal()" class="btn-cancel">Cancel</button>
+                <button onclick="saveRegularBillDetails()" class="btn-apply">Save Details</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- OCR SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <!--  -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/@zxing/library@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="index.js"></script>
+</body>
+
+</html>
